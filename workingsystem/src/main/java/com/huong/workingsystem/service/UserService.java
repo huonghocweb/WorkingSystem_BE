@@ -14,6 +14,15 @@ import java.io.IOException;
 
 
 public interface  UserService {
+    PageResponse<UserResponse> getAllUser(Pageable pageable);
 
+    UserResponse getUserByUserId(Integer userId);
+
+    UserResponse getUserByUserName(String userName);
+
+
+    UserResponse createUser(UserRequest userRequest, MultipartFile[] file) throws IOException;
+
+    UserResponse updateUser(Integer userId , UserRequest userRequest , MultipartFile[] files) throws IOException;
 
 }
