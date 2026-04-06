@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.huong.workingsystem.model.response.user.UserResponse;
+import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @CrossOrigin("*")
+@RequiredArgsConstructor
 @RequestMapping("/api/users")
 public class UserApi {
     @Autowired

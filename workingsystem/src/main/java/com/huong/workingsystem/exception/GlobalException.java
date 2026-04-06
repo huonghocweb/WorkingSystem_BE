@@ -1,5 +1,7 @@
 package com.huong.workingsystem.exception;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -67,4 +69,26 @@ public class GlobalException {
                 .build();
         return ResponseEntity.badRequest().body(response);
         }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<Object> handleJWTExcep(JwtException e) {
+        System.out.println("GlobalException : " + e.getMessage());
+        ApiResponse<Object> apiResponse = ApiResponse.builder()
+                .success(false)
+                .data(null)
+                .message("JWT is invalid" + e.getMessage())
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<Object> handleExpiredJWT(ExpiredJwtException e){
+            System.out.println("GlobalException: " + e.getMessage());
+            ApiResponse<Object>  apiResponse = ApiResponse.builder()
+                    .success(false)
+                    .data(null)
+                    .message("JWT is expired" + e.getMessage())
+                    .build();
+            return new ResponseEntity<>(apiResponse, HttpStatus.UNAUTHORIZED);
+    }
 }

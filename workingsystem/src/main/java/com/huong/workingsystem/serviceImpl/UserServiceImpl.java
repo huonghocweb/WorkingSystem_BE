@@ -21,6 +21,8 @@ import com.huong.workingsystem.repo.UserRepo;
 import com.huong.workingsystem.service.UserService;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,6 +38,8 @@ public class UserServiceImpl implements UserService {
     private RoleRepo roleRepo;
     @Autowired
     private CloudinaryService cloudinaryService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     //readOnly : tối ưu hóa hiệu năng truy vấn , chặn khi có thay đổi db
@@ -77,29 +81,39 @@ public class UserServiceImpl implements UserService {
     public UserResponse createUser(UserRequest userRequest, MultipartFile[] files) throws IOException {
         System.out.println("UserReq: " + userRequest);
         User user = userMapper.convertReqToEn(userRequest);
-      //  user.setPassword();
+      user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
       user.setRoles( userRequest.getRoleIds()!= null ?
               roleRepo.findAllById(userRequest.getRoleIds()) : null);
       // saveRoleId nưa
-        if(files != null)
-        user.setImagePublicId(cloudinaryService.uploadFile(files,  "user").get(0));
+        if(files != null){
+            user.setImagePublicId(cloudinaryService.uploadFile(files,  "user").get(0));
+        }
         User newUser = userRepo.save(user);
         return userMapper.convertEnToRes(newUser);
     }
 
 
     @Override
-    public UserResponse updateUser(Integer userId, UserRequest userRequest , MultipartFile[] files) throws IOException{
+    public UserResponse updateUser(Integer userId, UserRequest userRequest , MultipartFile[] files) throws IOException {
+        System.out.println("123");
         User userExists = userRepo.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("not found user to update"));
+        System.out.println("userName old: " +userExists.getUserName());
+        System.out.println("userName new trong req: " + userRequest.getUserName());
         // map từ userRequest sang user nhưng sẽ là update các trường khac null trong userRequest
-        userMapper.updateEntityFromRequest(userRequest, userExists);
-        if(files != null) {
-            userExists.setImagePublicId(cloudinaryService.uploadFile(files ,"user").get(0));
+        if (userRequest.getPassword() != null) {
+            userRequest.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         }
-        if (userRequest.getRoleIds() != null) {
-            userExists.setRoles(roleRepo.findAllById(userRequest.getRoleIds()));
-        }
+            userMapper.updateEntityFromRequest(userRequest, userExists);
+
+            if (files != null) {
+                userExists.setImagePublicId(cloudinaryService.uploadFile(files, "user").get(0));
+            }
+            if (userRequest.getRoleIds() != null) {
+                userExists.setRoles(roleRepo.findAllById(userRequest.getRoleIds()));
+            }
+
+        System.out.println("userName new sau convert: "+ userExists.getUserName());
         return userMapper.convertEnToRes(userRepo.save(userExists));
     }
 }

@@ -20,7 +20,7 @@ public  class UserRequest {
 
     private String lastName;
 
-    private Integer password;
+    private String password;
 
     private LocalDate birthDay;
 
