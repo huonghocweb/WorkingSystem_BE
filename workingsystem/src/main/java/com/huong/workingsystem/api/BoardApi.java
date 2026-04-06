@@ -4,6 +4,7 @@ import com.huong.workingsystem.model.entity.Board;
 import com.huong.workingsystem.model.request.BoardRequest;
 import com.huong.workingsystem.model.response.ApiResponse;
 import com.huong.workingsystem.service.BoardService;
+import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin("*")
+@RequiredArgsConstructor
 @RequestMapping("/api/boards")
 public class BoardApi {
 

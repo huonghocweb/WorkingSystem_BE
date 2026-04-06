@@ -38,7 +38,7 @@ public class User {
     private String lastName;
 
     @Column(name = "password")
-    private Integer password;
+    private String password;
 
     @Column(name = "birth_day")
     private LocalDate birthDay;
@@ -94,4 +94,7 @@ public class User {
 
     @OneToMany(mappedBy="user")
     private  List<ActivityLog> activityLogs;
+
+    @OneToMany(mappedBy = "user")
+    private List<RefreshToken> reFreshTokens;
 }
