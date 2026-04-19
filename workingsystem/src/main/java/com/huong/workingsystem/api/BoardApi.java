@@ -57,7 +57,6 @@ public class BoardApi {
     public ResponseEntity<Object> createBoard(
             @RequestPart("boardRequest") BoardRequest boardRequest
             ){
-        System.out.println("boardRequest: " + boardRequest);
         ApiResponse<Object> response = ApiResponse.builder()
                 .success(true)
                 .message("create board")

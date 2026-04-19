@@ -1,5 +1,6 @@
 package com.huong.workingsystem.utils;
 
+import com.huong.workingsystem.model.dto.UserDetailCustom;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -17,7 +18,7 @@ import java.util.function.Function;
 public class JwtUtils {
 
     private final String SECRET_STRING = "huongphamworkingsystemproject_huongphamworkingsystemproject_very_long_key";
-    private final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 1; // 1 hour
+    private final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60; // 1 hour
     private final long REFRESH_TOKEN_EXPIRATION = 1000L * 60 * 60 * 24 * 7; // 7 days
 
     private SecretKey getSigningKey() {
@@ -72,15 +73,15 @@ public class JwtUtils {
         }
     }
 
-    public String generateAccessToken(UserDetails userDetails) {
+    public String generateAccessToken(UserDetailCustom userDetails) {
         return generateToken(userDetails,"ACCESS");
     }
 
-    public String generateRefreshToken(UserDetails userDetails) {
+    public String generateRefreshToken(UserDetailCustom userDetails) {
         return generateToken(userDetails,"REFRESH");
     }
 
-    private String generateToken(UserDetails userDetails, String tokenType) {
+    private String generateToken(UserDetailCustom userDetails, String tokenType) {
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
@@ -88,6 +89,7 @@ public class JwtUtils {
                 .subject(userDetails.getUsername())
                 .claim("roles", "ACCESS".equals(tokenType)? roles : null)
                 .claim("type", tokenType)
+                .claim("userId", userDetails.getUserId())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + ("ACCESS".equals(tokenType) ? ACCESS_TOKEN_EXPIRATION : REFRESH_TOKEN_EXPIRATION)))
                 .signWith(getSigningKey())

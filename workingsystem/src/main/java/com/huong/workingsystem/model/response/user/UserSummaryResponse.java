@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 public class UserSummaryResponse {
     private Integer userId ;  
     private String userName;
-    private String imageUrl;
     private String imagePublicId;
+    private String imageUrl;
 }

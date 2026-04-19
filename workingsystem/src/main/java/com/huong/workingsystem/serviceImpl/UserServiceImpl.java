@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepo.findById(userId)
         .orElseThrow(() -> new EntityNotFoundException("not found User"));
         UserResponse userResponse = userMapper.convertEnToRes(user);
-        userResponse.setImageUrl(cloudinaryService.getImageUrl(userResponse.getImagePublicId()));
+     //   userResponse.setImageUrl(cloudinaryService.getImageUrl(userResponse.getImagePublicId()));
         return userResponse;
     }
 
@@ -95,7 +95,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse updateUser(Integer userId, UserRequest userRequest , MultipartFile[] files) throws IOException {
-        System.out.println("123");
         User userExists = userRepo.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("not found user to update"));
         System.out.println("userName old: " +userExists.getUserName());
@@ -104,8 +103,7 @@ public class UserServiceImpl implements UserService {
         if (userRequest.getPassword() != null) {
             userRequest.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         }
-            userMapper.updateEntityFromRequest(userRequest, userExists);
-
+            userExists =  userMapper.updateEntityFromRequest(userRequest, userExists);
             if (files != null) {
                 userExists.setImagePublicId(cloudinaryService.uploadFile(files, "user").get(0));
             }

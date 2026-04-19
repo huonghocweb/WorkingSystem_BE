@@ -1,5 +1,6 @@
 package com.huong.workingsystem.api;
 
+import com.huong.workingsystem.model.dto.UserDetailCustom;
 import com.huong.workingsystem.model.entity.User;
 import com.huong.workingsystem.model.request.AuthRequest;
 import com.huong.workingsystem.model.response.ApiResponse;
@@ -51,12 +52,12 @@ public class AuthApi {
         }catch (AuthenticationException e  ){
             throw new BadCredentialsException("Incorrect userName or password",e );
         }
-        final  UserDetails userDetails = userDetailService.loadUserByUsername(authRequest.getUserName());
+        final UserDetailCustom userDetails = userDetailService.loadUserByUsername(authRequest.getUserName());
        // System.out.println("userDetail:" + userDetails);
         String accessToken = jwtUtils.generateAccessToken(userDetails);
         String refreshToken = jwtUtils.generateRefreshToken(userDetails);
-        System.out.println("accessToken " + accessToken + "Exp: " + jwtUtils.extractExpiration(accessToken));
-        System.out.println("refreshToken: " + refreshToken + "Exp: " + jwtUtils.extractExpiration(refreshToken));
+        System.out.println("accessToken " + accessToken + "   Exp: " + jwtUtils.extractExpiration(accessToken));
+        System.out.println("refreshToken: " + refreshToken + "  Exp: " + jwtUtils.extractExpiration(refreshToken));
         refreshTokenService.saveRefreshToken(userDetails.getUsername() , refreshToken);
         ResponseCookie  refreshCookie = ResponseCookie.from("refreshToken" , refreshToken)
                 .httpOnly(true)//Chặn JavaCript truy cập vào Cookie
@@ -94,7 +95,7 @@ public class AuthApi {
    //     System.out.println("Get new Access is: " + (isCheckRefresh ? "success" : "failed"));
             if(isCheckRefresh){
               //  System.out.println("Token co trong db");
-                UserDetails userDetails = userDetailService.loadUserByUsername(userName);
+                UserDetailCustom userDetails = userDetailService.loadUserByUsername(userName);
                  newAccessToken = jwtUtils.generateAccessToken(userDetails);
               //  System.out.println("new accessTOken:" + newAccessToken);
             }

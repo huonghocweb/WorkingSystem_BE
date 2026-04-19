@@ -3,9 +3,11 @@ package com.huong.workingsystem.serviceImpl;
 import com.huong.workingsystem.mapper.BoardMapper;
 import com.huong.workingsystem.model.entity.Board;
 import com.huong.workingsystem.model.request.BoardRequest;
-import com.huong.workingsystem.model.response.BoardResponse;
+import com.huong.workingsystem.model.response.board.BoardResponse;
 import com.huong.workingsystem.repo.BoardRepo;
+import com.huong.workingsystem.repo.WorkspaceRepo;
 import com.huong.workingsystem.service.BoardService;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,16 +19,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class BoardServiceImpl implements BoardService {
 
-    @Autowired
-    private BoardMapper boardMapper;
-    @Autowired
-    private BoardRepo boardRepo;
+    private final BoardMapper boardMapper;
+    private final BoardRepo boardRepo;
+    private final WorkspaceRepo workspaceRepo;
 
     @Override
     @Transactional(readOnly = true)
@@ -43,7 +45,6 @@ public class BoardServiceImpl implements BoardService {
     public BoardResponse getBoardById(Integer boardId) {
         Board boardById  = boardRepo.findById(boardId)
                 .orElseThrow(()-> new EntityNotFoundException("not found board by id")  );
-       // System.out.println(boardById.getBoardLists().get(0).getCards().get(0).getUsers().size());
         return boardMapper.convertEnToRes(boardById);
     }
 
@@ -51,17 +52,34 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     public BoardResponse createBoard(BoardRequest boardRequest) {
         Board board = boardMapper.convertReqToEn(boardRequest);
-        System.out.println(board.getBoardTitle());
+        board.setWorkspace(workspaceRepo.findById(boardRequest.getWorkspaceId())
+                .orElseThrow(()->  new EntityNotFoundException("Not found workspace")));
+        Board boardTitleExists = boardRepo.getBoardByBoardTitleAndWorkspace(board.getBoardTitle(), boardRequest.getWorkspaceId())   ;
+        if(boardTitleExists != null) {
+            throw new EntityExistsException("BordTitle is already in this workspace");
+        }
+        //nên update kiểm tra xem Workspace đó có bị trùng tên board  hay không
         board.setCreateAt(LocalDateTime.now());
+        board.setColor(String.format("#%06x", new Random().nextInt(0xffffff + 1)));
         return boardMapper.convertEnToRes(boardRepo.save(board));
     }
 
     @Override
     @Transactional
     public BoardResponse updateBoard(Integer boardId, BoardRequest boardRequest) {
-        Board boardExist  = boardRepo.findById(boardId)
-                .orElseThrow(()-> new EntityNotFoundException("not found board by id"));
-        boardMapper.updateEntityFromRequest(boardRequest , boardExist);
-        return boardMapper.convertEnToRes(boardRepo.save(boardExist));
+        return boardRepo.findById(boardId).map(boarExists -> {
+            Board boardTitleExists  = boardRepo.getBoardByBoardTitleAndWorkspace(boardRequest.getBoardTitle(), boarExists.getWorkspace().getWorkspaceId());
+            if(boardTitleExists != null &&  !boardTitleExists.getBoardId().equals(boardId))  {
+                System.out.println("boarttileexist" + boardTitleExists.getBoardId() + boardTitleExists.getBoardTitle());
+                throw  new EntityExistsException("BoardTitle is already used");
+            }
+                boarExists = boardMapper.updateEntityFromRequest(boardRequest, boarExists);
+                return boardMapper.convertEnToRes(boardRepo.save(boarExists));
+                }) .orElseThrow(()-> new EntityNotFoundException("not found Board"))    ;
+    }
+
+    @Override
+    public void deleteBoard(Integer userId, Integer boardId) {
+
     }
 }

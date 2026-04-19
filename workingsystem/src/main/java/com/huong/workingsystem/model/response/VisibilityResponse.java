@@ -6,12 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LabelResponse {
-    private Integer labelId;
-    private String labelName ;
-    private String labelColor;
-
+@Builder
+public class VisibilityResponse {
+    private Integer  visibilityId;
+    private  String visibilityName ;
 }

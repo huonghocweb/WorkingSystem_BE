@@ -19,28 +19,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CardDetailResponse {
-    
     private Integer cardId;
-
     private String cardTitle;
-
     private String cardDescription;
-
-    private LocalDateTime startDate; 
-
+    private LocalDateTime startDate;
     private LocalDateTime endDate;
-
     private Integer position;
-
-
     private List<AttachmentResponse> attachments;
-
     private List<LabelResponse> labels;
-    
     private List<UserResponse> users;
-
     private List<CommentResponse> comments;
-
-    private List<ActivityLogResponse> activityLogs; 
-    
+    private List<ActivityLogResponse> activityLogs;
 }
