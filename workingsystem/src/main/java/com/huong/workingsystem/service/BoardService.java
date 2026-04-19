@@ -1,7 +1,7 @@
 package com.huong.workingsystem.service;
 
 import com.huong.workingsystem.model.request.BoardRequest;
-import com.huong.workingsystem.model.response.BoardResponse;
+import com.huong.workingsystem.model.response.board.BoardResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -11,4 +11,5 @@ public interface BoardService {
     BoardResponse getBoardById(Integer boardId);
     BoardResponse createBoard(BoardRequest boardRequest);
     BoardResponse updateBoard(Integer boardId, BoardRequest boardRequest);
+    void deleteBoard(Integer userId , Integer boardId) ;
 }

@@ -15,20 +15,21 @@ create table users
 	CONSTRAINT UQ_USERS_PHONENUMBER UNIQUE(phone_number)
 )
 
-INSERT INTO users(user_name, first_name, last_name, password, birth_day, phone_number, address, image_public_id, gender, email) VALUES
-(N'huongpham', N'Hưởng', N'Phạm Văn', '123', '2000-12-12', N'012828392', N'11 Võ Văn tần , Quận 3', N'user/aklcloyhujbsoe6klu5s', 0, N'huongpham12@gmail.com'),
-(N'linhpham', N'Linh', N'Phạm Thị Thùy', '123', '2001-02-12', N'09032392', N'99 Cộng Hòa , Tan Binh', N'user/jf4ukrzsaugn2akp2a2i', 1, N'thuylinh199@gmail.com'),
-(N'trungtran', N'Trung', N'Trần Đức', '123', '1999-10-02', N'0989892', N'123 Cách Mạng Tháng 8, Quận 10', N'pngtree-character-default-avatar-image_2237203_ibkb1f', 1, N'trungduc09@gmail.com'),
-(N'minhhoang', N'Hoàng', N'Nguyễn Minh', '123', '1998-05-20', N'0901234567', N'45 Lê Lợi, Quận 1', N'image_url_4', 1, N'hoangminh@gmail.com'),
-(N'lananh', N'Anh', N'Trương Lan', '123', '2002-08-15', N'0912345678', N'120 Hai Bà Trưng, Quận 3', N'image_url_5', 0, N'lananh88@gmail.com'),
-(N'thanhnam', N'Nam', N'Vũ Thành', '123', '1997-11-30', N'0923456789', N'789 Điện Biên Phủ, Bình Thạnh', N'image_url_6', 1, N'namthanh@gmail.com'),
+insert into users(user_name, first_name, last_name, password, birth_day, phone_number, address, image_public_id, gender, email) VALUES
+(N'huongpham', N'Hưởng', N'Phạm Văn', '$2a$10$VnzPDG7A0xOq8TfNe4muIuP.Ic5R9kaqCPDACHJ2ASC/DLOngDpDO', '2000-12-12', N'0128283692', N'11 Võ Văn tần , Quận 3', N'user/wccckiuoxvyvovwpm6pl', 0, N'huongpham12@gmail.com'),
+(N'linhpham', N'Linh', N'Phạm Thị Thùy', '$2a$10$VnzPDG7A0xOq8TfNe4muIuP.Ic5R9kaqCPDACHJ2ASC/DLOngDpDO', '2001-02-12', N'0903239422', N'99 Cộng Hòa , Tan Binh', N'user/uhy66eyeh9mzn4uxwxa2', 1, N'thuylinh199@gmail.com'),
+(N'trungtran', N'Trung', N'Trần Đức', '$2a$10$VnzPDG7A0xOq8TfNe4muIuP.Ic5R9kaqCPDACHJ2ASC/DLOngDpDO', '1999-10-02', N'0989892112', N'123 Cách Mạng Tháng 8, Quận 10', N'user/x8tlvv6zp1lyilx5rlrt', 1, N'trungduc09@gmail.com'),
+(N'minhhoang', N'Hoàng', N'Nguyễn Minh', '$2a$10$VnzPDG7A0xOq8TfNe4muIuP.Ic5R9kaqCPDACHJ2ASC/DLOngDpDO', '1998-05-20', N'0901234567', N'45 Lê Lợi, Quận 1', N'user/wi8ew4vrcqq5rauqmohf', 1,  N'hoangminh@gmail.com'),
+(N'lananh', N'Anh', N'Trương Lan', '123', '2002-08-15', N'0912345678', N'120 Hai Bà Trưng, Quận 3', N'user/jar5jegluhwhc0op5qxx', 0, N'lananh88@gmail.com'),
+(N'thanhnam', N'Nam', N'Vũ Thành', '123', '1997-11-30', N'0923456789', N'789 Điện Biên Phủ, Bình Thạnh', N'user/idadzf6dvujuy1pnpjat', 1, N'namthanh@gmail.com'),
 (N'bichngoc', N'Ngọc', N'Đỗ Bích', '123', '2001-03-25', N'0934567890', N'12 Phan Xích Long, Phú Nhuận', N'image_url_7', 0, N'ngocbich@gmail.com'),
 (N'quanghuy', N'Huy', N'Lê Quang', '123', '2000-01-10', N'0945678901', N'56 Nguyễn Trãi, Quận 5', N'image_url_8', 1, N'huyquang@gmail.com'),
 (N'thuyduong', N'Dương', N'Hoàng Thùy', '123', '2003-07-04', N'0956789012', N'234 Trần Hưng Đạo, Quận 1', N'image_url_9', 0, N'duongthuy@gmail.com'),
 (N'anhtuan', N'Tuấn', N'Phan Anh', '123', '1999-12-25', N'0967890123', N'88 Song Hành, Quận 2', N'image_url_10', 1, N'tuananh@gmail.com'),
 (N'ngocha', N'Hà', N'Nguyễn Ngọc', '123', '2002-02-14', N'0978901234', N'442 Lý Thường Kiệt, Tân Bình', N'image_url_11', 0, N'hangoc@gmail.com'),
 (N'duykhanh', N'Khánh', N'Trần Duy', '123', '1996-09-09', N'0989012345', N'15 Quang Trung, Gò Vấp', N'image_url_12', 1, N'khanhduy@gmail.com'),
-(N'maiphuong', N'Phương', N'Lý Mai', '123', '2001-06-18', N'0990123456', N'33 Hậu Giang, Quận 6', N'image_url_13', 0, N'phuongmai@gmail.com');
+(N'maiphuong', N'Phương', N'Lý Mai', '123', '2001-06-18', N'0990123456', N'33 Hậu Giang, Quận 6', N'image_url_13', 0, N'phuongmai@gmail.com')
+
 
 create table roles
 (
@@ -67,36 +68,40 @@ insert into visibilities(visibility_name) values
 (N'Public'),
 (N'Private')
 
-create table work_spaces
+create table workspaces
 (
-	work_space_id int primary key identity(1,1) ,
-	work_space_title nvarchar(100),
+	workspace_id int primary key identity(1,1) ,
+	workspace_title nvarchar(100),
 	create_at datetime default getdate(),
 	visibility_id int foreign key
 	references visibilities(visibility_id)
 )
 
-insert into work_spaces(work_space_title, create_at , visibility_id ) values
-(N'CourseHubProject' , '2026-12-19', 1),
-(N'GaVangProject' , '2026-12-19', 2),
-(N'FlowerShopProject' , '2026-12-19', 2),
-(N'MedicalProject' , '2026-12-19', 1),
-(N'EnglishSpeakProject' , '2026-12-19', 1)
+INSERT INTO workspaces (workspace_title, create_at, visibility_id) VALUES
+('Personal Projects', '2026-04-07', 1),
+('Freelance Team', '2026-04-07', 2),
+('Learning & Research', '2026-04-07', 1)
 
 create table boards
 (
 	board_id int primary key identity(1,1) ,
 	board_title nvarchar(100) ,
 	create_at datetime default getdate() ,
-	work_space_id int,
-	foreign key (work_space_id )references work_spaces(work_space_id)
+	color nvarchar(50) ,
+	workspace_id int,
+	foreign key (workspace_id )references workspaces(workspace_id)
 )
-insert into boards(board_title , create_at , work_space_id) values
-(N'CourseBackEnd', '2026-12-11', 1),
-(N'CourseFronEnd', '2026-12-12', 1),
-(N'CourseDocument', '2025-09-21', 1),
-(N'PaymentMethod', '2026-08-03', 2),
-(N'PaymentService', '2026-02-09', 2)
+
+INSERT INTO boards (board_title, create_at, color, workspace_id) VALUES
+('My Portfolio Website', '2026-03-10', '#0079bf', 1),
+('Java Core Practice', '2026-03-12', '#4bce97', 1),
+('System Documentation', '2025-09-21', '#607d8b', 1),
+
+('E-commerce Website', '2026-03-15', '#ff78cb', 2),
+('Healthcare Mobile App', '2026-02-09', '#f2d600', 2),
+
+('English Speaking Club', '2026-01-05', '#eb5757', 3)
+
 create table board_lists(
 	board_list_id int primary key identity(1,1) ,
 	board_list_title nvarchar(100) ,
@@ -114,6 +119,7 @@ insert into board_lists(board_list_title , position , board_id ) values
 (N'Back Log',500 , 1) ,
 (N'To Do',0 , 2) ,
 (N'Progress',100 , 2)
+
 create table cards
 (
 	card_id int primary key identity(1,1) ,
@@ -131,6 +137,7 @@ insert into cards(card_title,card_description,start_date,end_date,position,board
 (N'JWT Config', N'Create Class JWT Utils and JWT Filter Chain', N'2026-03-10',N'2026-03-29', 200, 1),
 (N'Create Account', N'Create query connect and get user by userId', N'2026-04-01',N'2026-04-05', 300, 2),
 (N'Payment Api', N'Create Payment Method and payment service', N'2026-02-20',N'2026-05-01', 400, 2)
+
 create table attachments (
 	attachment_id int primary key identity(1,1) ,
 	file_url nvarchar(max) ,
@@ -140,6 +147,7 @@ create table attachments (
 	user_id int foreign key
 	references users(user_id)
 )
+
 insert into attachments(file_url , create_at , card_id , user_id) values
 (N'fileurl.png' , '2026-03-16' , 1, 1),
 (N'document.text' , '2026-03-11' , 1, 1),
@@ -186,14 +194,24 @@ insert into card_user(card_id , user_id) values
 (2, 1),
 (1, 2)
 
-create table work_space_member(
-	work_space_id int ,
+create table workspace_member(
+	workspace_id int ,
 	user_id int ,
 	role nvarchar(100),
-	primary key (work_space_id , user_id),
-	foreign key (work_space_id) references work_spaces(work_space_id) ,
+	primary key (workspace_id , user_id),
+	foreign key (workspace_id) references workspaces(workspace_id) ,
 	foreign key (user_id) references users(user_id)
 )
+
+insert into workspace_member(workspace_id , user_id, role) values
+(1, 1, N'ADMIN') ,
+(1,2, N'MEMBER') ,
+(1,4, N'MEMBER') ,
+(1,3, N'MEMBER') ,
+(1,5, N'MEMBER') ,
+(2, 1,N'ADMIN'),
+(2,4, N'MEMBER'),
+(2,5, N'MEMBER')
 
 create table board_member(
 	board_id int ,

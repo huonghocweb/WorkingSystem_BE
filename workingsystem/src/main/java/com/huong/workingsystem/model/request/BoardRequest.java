@@ -3,7 +3,6 @@ package com.huong.workingsystem.model.request;
 import com.huong.workingsystem.model.entity.BoardList;
 import com.huong.workingsystem.model.entity.Label;
 import com.huong.workingsystem.model.entity.User;
-import com.huong.workingsystem.model.entity.WorkSpace;
 import com.huong.workingsystem.model.response.user.UserSummaryResponse;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,5 +19,5 @@ import java.util.List;
 @Builder
 public class BoardRequest {
     private String boardTitle;
-    private LocalDateTime createAt;
+    private Integer workspaceId ;
 }

@@ -6,7 +6,7 @@ import com.huong.workingsystem.model.response.card.CardSummaryResponse;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring" , uses = {UserMapper.class})
+@Mapper(componentModel = "spring" , uses = {UserMapper.class , LabelMapper.class})
 public interface CardMapper {
     CardSummaryResponse convertEnToResSum(Card card);
 

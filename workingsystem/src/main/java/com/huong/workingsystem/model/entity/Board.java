@@ -35,9 +35,12 @@ public class Board {
     @Column(name ="create_at")
     private LocalDateTime createAt;
 
+    @Column(name ="color")
+    private String color;
+
     @ManyToOne
-    @JoinColumn(name = "work_space_id") 
-    private WorkSpace workSpace;
+    @JoinColumn(name = "workspace_id")
+    private Workspace workspace;
 
     @OneToMany(mappedBy="board")
     private List<BoardList> boardLists;

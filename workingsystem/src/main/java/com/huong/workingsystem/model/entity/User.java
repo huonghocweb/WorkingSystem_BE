@@ -74,15 +74,6 @@ public class User {
 
     @ManyToMany
     @JoinTable(
-        name = "work_space_member", 
-        joinColumns=@JoinColumn(name = "user_id"), 
-        inverseJoinColumns=@JoinColumn(name ="work_space_id")
-    )
-    private List<WorkSpace> workSpaces;
-
-
-    @ManyToMany
-    @JoinTable(
         name ="board_member" , 
         joinColumns= @JoinColumn(name = "user_id") , 
         inverseJoinColumns=@JoinColumn(name ="board_id")
@@ -97,4 +88,7 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<RefreshToken> reFreshTokens;
+
+    @OneToMany(mappedBy = "user")
+    private List<WorkspaceMember> workspaceMembers;
 }

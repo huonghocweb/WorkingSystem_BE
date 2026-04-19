@@ -1,5 +1,6 @@
 package com.huong.workingsystem.config;
 
+import com.huong.workingsystem.model.dto.UserDetailCustom;
 import com.huong.workingsystem.model.response.ApiResponse;
 import com.huong.workingsystem.serviceImpl.UserDetailServiceImpl;
 import com.huong.workingsystem.utils.JwtUtils;
@@ -14,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -22,6 +25,8 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 import java.security.SignatureException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -65,7 +70,12 @@ public class JWTRequestFilter extends OncePerRequestFilter {
         }
 
         if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailService.loadUserByUsername(userName);
+            Integer userId = (Integer) jwtUtils.extractClaim(jwtToken , claims -> claims.get("userId"));
+            List<String> roles = jwtUtils.extractRoles(jwtToken);
+            List<GrantedAuthority> authorities = roles.stream()
+                    .map(roleName -> new SimpleGrantedAuthority( roleName))
+                    .collect(Collectors.toList());
+            UserDetailCustom userDetails = new UserDetailCustom(userId , userName, null , authorities);
             if (  jwtUtils.validateToken(jwtToken, userDetails)) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
