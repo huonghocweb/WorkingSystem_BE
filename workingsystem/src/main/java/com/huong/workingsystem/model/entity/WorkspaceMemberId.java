@@ -12,6 +12,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class WorkspaceMemberId implements Serializable {
-    private Integer userId;
     private Integer workspaceId;
+    private Integer userId;
 }

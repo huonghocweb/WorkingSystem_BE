@@ -11,14 +11,19 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLRestriction;
+
 
 @Data
 @Entity
-@Table(name = "attachments")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@Table(name = "attachments")
+@SQLRestriction("delete_at IS NULL")
 public class Attachment {
 
     @Id
@@ -26,11 +31,23 @@ public class Attachment {
     @Column(name = "attachment_id")
     private Integer attachmentId;   
 
-    @Column(name = "file_url")
-    private String fileUrl;
+    @Column(name = "file_public_id")
+    private String filePublicId;
+
+    @Column(name =  "file_name")
+    private String fileName ;
+
+    @Column(name = "file_type")
+    private String fileType;
+
+    @Column(name = "file_size")
+    private  Long fileSize;
 
     @Column(name = "create_at")
     private LocalDateTime createAt;
+
+    @Column(name = "delete_at")
+    private LocalDateTime deleteAt;
 
     @ManyToOne
     @JoinColumn(name ="user_id")

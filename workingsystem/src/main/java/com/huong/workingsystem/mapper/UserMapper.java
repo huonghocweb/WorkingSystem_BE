@@ -7,13 +7,13 @@ import com.huong.workingsystem.model.entity.User;
 import com.huong.workingsystem.model.request.UserRequest;
 import com.huong.workingsystem.model.response.user.UserResponse;
 
-@Mapper(componentModel="spring", uses={RoleMapper.class , ImageMapper.class})
+@Mapper(componentModel="spring", uses={RoleMapper.class , FileMapper.class})
 public interface  UserMapper {
 
-    @Mapping(source = "imagePublicId" , target = "imageUrl"  , qualifiedByName = "toFullUrl")
+    @Mapping(source = "imagePublicId" , target = "imageUrl"  , qualifiedByName = "toFullImageUrl")
     UserSummaryResponse convertEnToResSum(User user);
 
-    @Mapping(source = "imagePublicId", target = "imageUrl", qualifiedByName = "toFullUrl")
+    @Mapping(source = "imagePublicId", target = "imageUrl", qualifiedByName = "toFullImageUrl")
     UserResponse convertEnToRes(User user);
 
     User convertReqToEn(UserRequest userRequest);

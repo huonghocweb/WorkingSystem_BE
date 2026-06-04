@@ -11,14 +11,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Entity
-@Table(name ="activity_logs")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@Entity
+@Table(name ="activity_logs")
 public class ActivityLog {
     
     @Id
@@ -26,24 +28,40 @@ public class ActivityLog {
     @Column(name = "activity_log_id")
     private Integer activityLogId;
 
-    @Column(name ="old_value")
-    private String oldValue;
+    @Column(name = "user_id")
+    private Integer userId;
 
-    @Column(name ="new_value")
-    private String newValue;
+    @Column(name = "user_name")
+    private String userName;
 
-    @Column(name ="create_at")
+    @Column(name="action_type")
+    private String actionType;
+
+    @Column(name = "content")
+    private String content;
+
+    @Column(name = "create_at")
     private LocalDateTime createAt;
 
-    @ManyToOne
-    @JoinColumn(name = "action_type_id")
-    private ActionType actionType;
+    @Column(name = "extra_data")
+    private String extraData;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(name="entity_type")
+    private String entityType;
 
-    @ManyToOne
-    @JoinColumn(name ="card_id")
-    private  Card card;
+    @Column(name = "entity_id")
+    private Integer entityId;
+
+    @Column(name = "entity_name")
+    private  String entityName;
+
+    @Column(name = "context_id")
+    private  Integer contextId;
+
+    @Column(name = "context_name")
+    private String contextName;
+
+    @Column(name = "context_type")
+    private String contextType;
+
 }

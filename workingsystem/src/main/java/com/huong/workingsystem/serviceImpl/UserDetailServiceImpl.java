@@ -3,6 +3,7 @@ package com.huong.workingsystem.serviceImpl;
 import com.huong.workingsystem.model.dto.UserDetailCustom;
 import com.huong.workingsystem.model.entity.User;
 import com.huong.workingsystem.repo.UserRepo;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,7 +26,8 @@ public class UserDetailServiceImpl implements UserDetailsService {
     private UserRepo userRepo;
     @Override
     public UserDetailCustom loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepo.getUserByUserName(username);
+        User user = userRepo.getUserByUserName(username)
+                .orElseThrow(()-> new EntityNotFoundException("not  found user by username"));
         List<GrantedAuthority> authorities =user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRoleName()))
                 .collect(Collectors.toList());

@@ -72,23 +72,18 @@ public class User {
     @ManyToMany(mappedBy = "users")
     private List<Card> cards;
 
-    @ManyToMany
-    @JoinTable(
-        name ="board_member" , 
-        joinColumns= @JoinColumn(name = "user_id") , 
-        inverseJoinColumns=@JoinColumn(name ="board_id")
-    )
-    private List<Board> boards;
-
     @OneToMany(mappedBy="user")
     private List<Comment> comments;
-
-    @OneToMany(mappedBy="user")
-    private  List<ActivityLog> activityLogs;
 
     @OneToMany(mappedBy = "user")
     private List<RefreshToken> reFreshTokens;
 
     @OneToMany(mappedBy = "user")
     private List<WorkspaceMember> workspaceMembers;
+
+    @OneToMany(mappedBy = "inviter")
+    private List<WorkspaceInvitation> workspaceInvitations;
+
+    @OneToMany(mappedBy = "user")
+    private List<BoardMember> boardMembers;
 }

@@ -73,7 +73,7 @@ public class UserApi {
     @PostMapping("/v1")
     public ResponseEntity<Object> createUser(
             @RequestPart("userRequest") UserRequest userRequest,
-            @RequestPart(value = "files" , required = false) MultipartFile[] files
+            @RequestPart(value = "files" , required = false) MultipartFile file
             ) throws IOException {
         Map<String, Object> result = new HashMap<>();
         System.out.println("createUser:  " + userRequest);
@@ -81,7 +81,7 @@ public class UserApi {
 //        System.out.println("FileSIze:" + files[0].getSize());
         ApiResponse<Object> responsse =  ApiResponse.builder()
                 .success(true)
-                .data(userService.createUser(userRequest, files))
+                .data(userService.createUser(userRequest, file))
                 .message("Create User success")
                 .build();
         return ResponseEntity.ok(responsse);
@@ -91,14 +91,20 @@ public class UserApi {
     public ResponseEntity<Object> updateUser(
             @PathVariable("userId") Integer userId,
             @RequestPart("userRequest") UserRequest userRequest ,
-            @RequestPart(value = "files", required = false) MultipartFile[] files
+            @RequestPart(value = "files", required = false) MultipartFile file
     ) {
         Map<String, Object> result = new HashMap<>();
         System.out.println("updateUser:  " + userRequest);
-       // System.out.println("files: " + files[0].getSize());
+//        if (files != null && files.length > 0) {
+//            for (MultipartFile file : files) {
+//                System.out.println("Tên file gốc (Original Filename): " + file.getOriginalFilename());
+//                System.out.println("Định dạng file (Content Type): " + file.getContentType());
+//                System.out.println("Kích thước (Size): " + file.getSize() + " bytes");
+//            }
+//        }
         try {
             result.put("success", true);
-            result.put("data", userService.updateUser(userId, userRequest , files));
+            result.put("data", userService.updateUser(userId, userRequest ,file));
             result.put("message", "Update User");
         } catch (Exception e) {
             result.put("success", false);

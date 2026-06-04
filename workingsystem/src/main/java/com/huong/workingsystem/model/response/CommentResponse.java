@@ -1,6 +1,7 @@
 package com.huong.workingsystem.model.response;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.huong.workingsystem.model.response.user.UserSummaryResponse;
 
@@ -18,5 +19,8 @@ public class CommentResponse {
     private String commentContent;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
-    private UserSummaryResponse user; 
+    private UserSummaryResponse user;
+    private Integer parentId;
+    private List<CommentResponse> replies;
+
 }

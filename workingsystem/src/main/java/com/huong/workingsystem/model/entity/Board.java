@@ -48,7 +48,7 @@ public class Board {
     @OneToMany(mappedBy="board")
     private List<Label> labels;
 
-    @ManyToMany(mappedBy="boards") 
-    private List<User> users;
+    @OneToMany(mappedBy = "board")
+    private List<BoardMember> boardMembers;
     
 }
