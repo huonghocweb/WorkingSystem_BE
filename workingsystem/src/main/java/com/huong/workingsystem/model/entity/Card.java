@@ -2,6 +2,7 @@ package com.huong.workingsystem.model.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,6 +18,9 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.SQLRestriction;
 
 @Data
 @AllArgsConstructor
@@ -42,8 +46,11 @@ public class Card {
     @Column(name ="end_date")
     private LocalDateTime endDate;
 
-    @Column(name = "position")
-    private Integer position;
+    @Column(name = "order_index")
+    private Double orderIndex;
+
+    @Column(name ="delete_at")
+    private LocalDateTime deleteAt;
 
     @ManyToOne 
     @JoinColumn(name = "board_list_id")
@@ -54,11 +61,11 @@ public class Card {
 
     @ManyToMany
     @JoinTable(
-        name= "card_label",
+        name= "card_labels",
         joinColumns= @JoinColumn(name = "card_id") , 
         inverseJoinColumns=@JoinColumn(name = "label_id")
     )
-    private List<Label> labels;
+    private Set<Label> labels;
     
     @ManyToMany
     @JoinTable(
@@ -66,11 +73,9 @@ public class Card {
             joinColumns =  @JoinColumn(name = "card_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private  List<User> users;
+    private Set<User> users;
 
     @OneToMany(mappedBy="card")
     private List<Comment> comments;
 
-    @OneToMany(mappedBy="card")
-    private List<ActivityLog> activityLogs;
 }

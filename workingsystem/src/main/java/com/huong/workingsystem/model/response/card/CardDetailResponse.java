@@ -9,6 +9,7 @@ import com.huong.workingsystem.model.response.CommentResponse;
 import com.huong.workingsystem.model.response.LabelResponse;
 import com.huong.workingsystem.model.response.user.UserResponse;
 
+import com.huong.workingsystem.model.response.user.UserSummaryResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,10 +25,10 @@ public class CardDetailResponse {
     private String cardDescription;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private Integer position;
-    private List<AttachmentResponse> attachments;
+    private Double orderIndex;
+    private LocalDateTime deleteAt;
     private List<LabelResponse> labels;
-    private List<UserResponse> users;
+    private List<UserSummaryResponse> users;
+    private List<AttachmentResponse> attachments;
     private List<CommentResponse> comments;
-    private List<ActivityLogResponse> activityLogs;
 }

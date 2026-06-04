@@ -25,7 +25,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public void saveRefreshToken(String userName, String token) {
-        User user = userRepo.getUserByUserName(userName);
+        User user = userRepo.getUserByUserName(userName)
+                .orElseThrow(()-> new EntityNotFoundException("not  found user by username"));
         RefreshToken refreshToken = RefreshToken.builder()
                 .refreshToken(token)
                 .user(user)

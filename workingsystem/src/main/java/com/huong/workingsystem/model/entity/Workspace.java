@@ -35,4 +35,7 @@ public class Workspace {
 
     @OneToMany(mappedBy = "workspace")
     private List<WorkspaceMember> workspaceMembers;
+
+    @OneToMany(mappedBy = "workspace")
+    private List<WorkspaceInvitation> workspaceInvitations;
 }

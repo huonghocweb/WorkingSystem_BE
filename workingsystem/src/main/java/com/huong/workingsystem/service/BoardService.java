@@ -9,7 +9,7 @@ public interface BoardService {
 
     Page<BoardResponse> getAllBoards(Pageable pageable);
     BoardResponse getBoardById(Integer boardId);
-    BoardResponse createBoard(BoardRequest boardRequest);
+    BoardResponse createBoard(BoardRequest boardRequest, Integer  creatorId);
     BoardResponse updateBoard(Integer boardId, BoardRequest boardRequest);
     void deleteBoard(Integer userId , Integer boardId) ;
 }

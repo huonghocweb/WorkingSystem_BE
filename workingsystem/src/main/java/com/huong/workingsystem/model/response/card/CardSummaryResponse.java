@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -16,7 +17,8 @@ import java.util.List;
 public class CardSummaryResponse {
     private Integer cardId;
     private String cardTitle;
-    private Integer position;
+    private Double orderIndex;
+    private LocalDateTime deleteAt;
     private String cardDescription ;
     private List<LabelResponse> labels;
     private List<UserSummaryResponse> users;

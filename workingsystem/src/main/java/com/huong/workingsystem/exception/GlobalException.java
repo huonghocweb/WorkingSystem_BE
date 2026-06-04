@@ -18,7 +18,8 @@ public class GlobalException {
     // Global Exception sẽ tự tìm method nào bắt đúng lỗi nhất đi vào 1 method đó ,khoogn quan tâm thứ tự
     private static final Map<String , String> constraint_map = Map.of(
             "UQ_USERS_EMAIL" , "Email is exists",
-            "UQ_USERS_PHONENUMBER", "PhoneNumber is exists"
+            "UQ_USERS_PHONENUMBER", "PhoneNumber is exists",
+            "UC_WORKSPACE_EMAIL" , "Email was invited"
     );
 
     @ExceptionHandler(RuntimeException.class)

@@ -1,19 +1,15 @@
 package com.huong.workingsystem.model.entity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.SQLRestriction;
 
 @Data
 @AllArgsConstructor
@@ -30,14 +26,21 @@ public class BoardList {
     @Column(name ="board_list_title")
     private  String boardListTitle; 
     
-    
     @Column(name ="position")
-    private  Integer position; 
+    private  Integer position;
+
+    @Column(name = "create_at")
+    private LocalDateTime createAt;
+
+    @Column(name ="delete_at")
+    private LocalDateTime deleteAt;
 
     @ManyToOne
     @JoinColumn(name = "board_id")
     private Board board ; 
 
     @OneToMany(mappedBy="boardList")
+    @OrderBy("orderIndex ASC")
+    @SQLRestriction("delete_at is null")
     private List<Card> cards;
 }

@@ -12,10 +12,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AttachmentResponse {
-    private Integer attachmentId;   
-
+    private Integer attachmentId;
+    private String filePublicId ;
+    private String fileName ;
+    private String fileType ;
+    private Long fileSize;
     private String fileUrl;
-
     private LocalDateTime createAt;
-
 }

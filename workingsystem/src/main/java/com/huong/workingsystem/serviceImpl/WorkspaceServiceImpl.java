@@ -76,9 +76,9 @@ public class WorkspaceServiceImpl implements WorkspaceService {
                 .orElseThrow(()-> new EntityNotFoundException("not found visibility")));
         Workspace workSpaceCreated = workSpaceRepo.save(workSpace);
 
-        WorkspaceMemberId workspaceMemberId = new WorkspaceMemberId(userId , workSpaceCreated.getWorkspaceId() );
+        WorkspaceMemberId workspaceMemberId = new WorkspaceMemberId(workSpaceCreated.getWorkspaceId() ,userId );
         User user = userRepo.findById(userId).orElseThrow(()->  new EntityNotFoundException("not found user")   );
-        WorkspaceMember workspaceMember = new WorkspaceMember(workspaceMemberId, user, workSpaceCreated, WorkspaceRole.ADMIN);
+        WorkspaceMember workspaceMember = new WorkspaceMember(workspaceMemberId,WorkspaceRole.ADMIN,workSpaceCreated ,  user);
         workspaceMemberRepo.save(workspaceMember);
 
         return workSpaceMapper.convertEnToRes(workSpaceCreated);

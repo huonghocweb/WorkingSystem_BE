@@ -1,9 +1,17 @@
 package com.huong.workingsystem.api;
 
+import com.cloudinary.Api;
+import com.huong.workingsystem.model.dto.UserDetailCustom;
 import com.huong.workingsystem.model.entity.Board;
+import com.huong.workingsystem.model.entity.BoardMember;
+import com.huong.workingsystem.model.request.BoardMemberRequest;
 import com.huong.workingsystem.model.request.BoardRequest;
+import com.huong.workingsystem.model.request.LabelRequest;
 import com.huong.workingsystem.model.response.ApiResponse;
+import com.huong.workingsystem.service.ActivityLogService;
+import com.huong.workingsystem.service.BoardMemberService;
 import com.huong.workingsystem.service.BoardService;
+import com.huong.workingsystem.service.LabelService;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,18 +20,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin("*")
 @RequiredArgsConstructor
-@RequestMapping("/api/boards")
+@RequestMapping("/api/boards/v1")
 public class BoardApi {
 
-    @Autowired
-    private BoardService boardService;
+    private final BoardService boardService;
+    private final BoardMemberService boardMemberService;
+    private final LabelService labelService;
+    private final ActivityLogService activityLogService;
 
-    @GetMapping("/v1/{boardId}")
+    @GetMapping("/{boardId}")
     public ResponseEntity<Object> getBoardById(
             @PathVariable("boardId") Integer boardId
     ){
@@ -35,7 +46,7 @@ public class BoardApi {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/v1")
+    @GetMapping
     public ResponseEntity<Object> getAllBoard(
             @RequestParam("pageNumber") Integer pageNumber,
             @RequestParam("pageSize") Integer pageSize ,
@@ -53,19 +64,21 @@ public class BoardApi {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/v1")
+    @PostMapping
     public ResponseEntity<Object> createBoard(
-            @RequestPart("boardRequest") BoardRequest boardRequest
+            @RequestPart("boardRequest") BoardRequest boardRequest,
+            Authentication  authentication
             ){
+        UserDetailCustom userDetailCustom = (UserDetailCustom) authentication.getPrincipal();
         ApiResponse<Object> response = ApiResponse.builder()
                 .success(true)
                 .message("create board")
-                .data(boardService.createBoard(boardRequest))
+                .data(boardService.createBoard(boardRequest, userDetailCustom.getUserId()))
                 .build();
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/v1/{boardId}" )
+    @PutMapping("/{boardId}" )
     public ResponseEntity<Object> updateBoard(
             @PathVariable("boardId") Integer boardId ,
             @RequestPart("boardRequest")BoardRequest boardRequest
@@ -76,5 +89,107 @@ public class BoardApi {
                 .data(boardService.updateBoard(boardId, boardRequest))
                 .build();
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/boardMembers/{boardId}")
+    public  ResponseEntity<Object> getBoardMembersByBoardId(
+            @PathVariable("boardId") Integer boardId
+    ){
+        ApiResponse<Object> apiResponse  = ApiResponse.builder()
+                .success(true)
+                .data(boardMemberService.getBoardMembersByBoardId(boardId))
+                .message("Get boardMembers by boardId")
+                .build();
+        return ResponseEntity.ok(apiResponse);
+
+    }
+
+    @PostMapping("/boardMembers/addMemberToBoard")
+    public ResponseEntity<Object> addMemberToBoard(
+            @RequestPart("boardMemberRequest")BoardMemberRequest boardMemberRequest
+            ){
+        System.out.println("123 " + boardMemberRequest);
+        ApiResponse<Object> apiResponse = ApiResponse.builder()
+                .success(true)
+                .data(boardMemberService.createBoardMember(boardMemberRequest))
+                .message("Add member to board success")
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+    @DeleteMapping("/boardMembers/{boardId}/{userId}")
+    public ResponseEntity<Object> deleteBoardMember(
+            @PathVariable("boardId")Integer boardId,
+            @PathVariable("userId") Integer userId
+    ) {
+        boardMemberService.deleteBoardMember(boardId, userId);
+        ApiResponse<Object> apiResponse = ApiResponse.builder()
+                .success(true)
+                .message("Delete member from board success")
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("/boardLabels/{boardId}")
+    public  ResponseEntity<Object> getLabelsByBoard(@PathVariable("boardId") Integer boardId) {
+        ApiResponse<Object> apiResponse = ApiResponse.builder()
+                .success(true)
+                .data(labelService.getLabelsByBoard(boardId))
+                .message("Get Labels by board success")
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @PostMapping("/boardLabels")
+    public  ResponseEntity<Object> createBoardLabel(
+            @RequestPart("labelRequest")LabelRequest labelRequest
+            ){
+        ApiResponse<Object > apiResponse = ApiResponse.builder()
+                .success(true)
+                .data(labelService.createLabel(labelRequest))
+                .message("Create board label  success")
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @DeleteMapping("/boardLabels/{labelId}")
+    public ResponseEntity<Object> deleteBoardLabel(@PathVariable("labelId") Integer labelId)  {
+        labelService.deleteLabel(labelId);
+        ApiResponse<Object> apiResponse =  ApiResponse.builder()
+                .success(true)
+                .message("Delete label  success")
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("/{boardId}/boardMembers/boardMemberNotInCard/{cardId}")
+    public  ResponseEntity<Object>  getBoardMemberNotInCard(
+            @PathVariable("boardId") Integer boardId,
+            @PathVariable("cardId") Integer cardId
+    ){
+        ApiResponse<Object> apiResponse = ApiResponse.builder()
+                .success(true)
+                .data(boardMemberService.getBoardMembersNotInCard(boardId,cardId))
+                .message("Get  boardMember not in card")
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("/{boardId}/activityLogs")
+    public ResponseEntity<Object> getActivitiesLogByBoard(
+            @PathVariable("boardId")  Integer boardId,
+            @RequestParam("page") Integer pageNumber ,
+            @RequestParam("size") Integer pageSize ,
+            @RequestParam("by") String sortBy  ,
+            @RequestParam("order") String sortOrder
+    ){
+        Sort.Direction direction = sortOrder.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        ApiResponse<Object> apiResponse = ApiResponse.builder()
+                .success(true)
+                .data(activityLogService.getActivityLogsByBoardId(boardId , pageable) )
+                .message("Get Activities by boardId")
+                .build();
+        return ResponseEntity.ok(apiResponse);
     }
 }

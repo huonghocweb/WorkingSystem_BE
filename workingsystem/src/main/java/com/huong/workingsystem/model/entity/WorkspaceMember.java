@@ -12,23 +12,23 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Builder
-@Table(name ="workspace_member")
+@Table(name ="workspace_members")
 public class WorkspaceMember {
 
     @EmbeddedId
     private  WorkspaceMemberId workspaceMemberId;
 
-    @ManyToOne
-    @MapsId("userId")
-    @JoinColumn(name="user_id")
-    private User user ;
+    @Enumerated(EnumType.STRING)
+    @Column(name ="role")
+    private WorkspaceRole role;
 
     @ManyToOne
     @MapsId("workspaceId")
     @JoinColumn(name="workspace_id")
     private Workspace workspace;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name ="role")
-    private WorkspaceRole role;
+    @ManyToOne
+    @MapsId("userId")
+    @JoinColumn(name="user_id")
+    private User user ;
 }

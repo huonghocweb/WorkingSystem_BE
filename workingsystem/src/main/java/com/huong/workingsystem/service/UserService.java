@@ -1,6 +1,7 @@
 package com.huong.workingsystem.service;
 
 import com.huong.workingsystem.model.response.PageResponse;
+import com.huong.workingsystem.model.response.user.UserSearchResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,9 +21,10 @@ public interface  UserService {
 
     UserResponse getUserByUserName(String userName);
 
+    UserResponse createUser(UserRequest userRequest, MultipartFile file) throws IOException;
 
-    UserResponse createUser(UserRequest userRequest, MultipartFile[] file) throws IOException;
+    UserResponse updateUser(Integer userId , UserRequest userRequest , MultipartFile file) throws IOException;
 
-    UserResponse updateUser(Integer userId , UserRequest userRequest , MultipartFile[] files) throws IOException;
+    UserSearchResponse findUserToInvite(String keyword, Integer  workspaceId);
 
 }
