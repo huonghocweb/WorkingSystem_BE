@@ -4,6 +4,7 @@ import com.cloudinary.Api;
 import com.huong.workingsystem.model.dto.UserDetailCustom;
 import com.huong.workingsystem.model.entity.Board;
 import com.huong.workingsystem.model.entity.BoardMember;
+import com.huong.workingsystem.model.enums.BoardRole;
 import com.huong.workingsystem.model.request.BoardMemberRequest;
 import com.huong.workingsystem.model.request.BoardRequest;
 import com.huong.workingsystem.model.request.LabelRequest;
@@ -20,8 +21,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin("*")
@@ -35,8 +43,10 @@ public class BoardApi {
     private final ActivityLogService activityLogService;
 
     @GetMapping("/{boardId}")
+    @PreAuthorize("@boardSecurity.isUserBelongBoard(#boardId , authentication)")
     public ResponseEntity<Object> getBoardById(
-            @PathVariable("boardId") Integer boardId
+            @PathVariable("boardId") Integer boardId,
+            Authentication authentication
     ){
         ApiResponse<Object> response = ApiResponse.builder()
                 .success(true)
@@ -64,7 +74,25 @@ public class BoardApi {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/boardRoles")
+    public ResponseEntity<Object> getBoardRoles() {
+        List<Map<String , String>> roles = Arrays.stream(BoardRole.values())
+                .map(role -> {
+                    Map<String , String > map = new HashMap<>();
+                    map.put("code", role.getCode() );
+                    map.put("displayName"  , role.getDisplayName());
+                    return map;
+                })
+                .collect(Collectors.toList());
+        ApiResponse<Object> apiResponse = ApiResponse.builder()
+                .success(true)
+                .message("Get all boardRoles")
+                .data(roles)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
     @PostMapping
+    @PreAuthorize("@workspaceSecurity.isAdminWorkspace(#boardRequest.workspaceId, authentication)")
     public ResponseEntity<Object> createBoard(
             @RequestPart("boardRequest") BoardRequest boardRequest,
             Authentication  authentication
@@ -79,6 +107,7 @@ public class BoardApi {
     }
 
     @PutMapping("/{boardId}" )
+    @PreAuthorize("@workspaceSecurity.isAdminWorkspace(#boardRequest.workspaceId, authentication)")
     public ResponseEntity<Object> updateBoard(
             @PathVariable("boardId") Integer boardId ,
             @RequestPart("boardRequest")BoardRequest boardRequest
@@ -105,8 +134,10 @@ public class BoardApi {
     }
 
     @PostMapping("/boardMembers/addMemberToBoard")
+    @PreAuthorize("@boardSecurity.isUserAdminBoard(#boardMemberRequest.boardId , authentication)" )
     public ResponseEntity<Object> addMemberToBoard(
-            @RequestPart("boardMemberRequest")BoardMemberRequest boardMemberRequest
+            @RequestPart("boardMemberRequest")BoardMemberRequest boardMemberRequest,
+            Authentication authentication
             ){
         System.out.println("123 " + boardMemberRequest);
         ApiResponse<Object> apiResponse = ApiResponse.builder()
@@ -116,10 +147,27 @@ public class BoardApi {
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
+
+    @PutMapping("/boardMembers")
+    @PreAuthorize("@boardSecurity.isUserAdminBoard(#boardMemberRequest.boardId, authentication)")
+    public ResponseEntity<Object> updateBoardMember(
+            @RequestPart("boardMemberRequest") BoardMemberRequest boardMemberRequest ,
+            Authentication authentication
+    ) {
+        System.out.println("Update BoardMember: " + boardMemberRequest);
+        ApiResponse<Object> apiResponse = ApiResponse.builder()
+                .success(true)
+                .message("Create board Member success")
+                .data(boardMemberService.updateBoardMember(boardMemberRequest))
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
     @DeleteMapping("/boardMembers/{boardId}/{userId}")
+    @PreAuthorize("@boardSecurity.isUserAdminBoard(#boardId , authentication)")
     public ResponseEntity<Object> deleteBoardMember(
             @PathVariable("boardId")Integer boardId,
-            @PathVariable("userId") Integer userId
+            @PathVariable("userId") Integer userId,
+            Authentication authentication
     ) {
         boardMemberService.deleteBoardMember(boardId, userId);
         ApiResponse<Object> apiResponse = ApiResponse.builder()

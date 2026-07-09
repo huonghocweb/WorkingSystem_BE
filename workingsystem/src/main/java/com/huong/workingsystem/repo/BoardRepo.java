@@ -21,4 +21,17 @@ public interface BoardRepo extends JpaRepository<Board, Integer>{
     Optional<Board> findBoardIfUserInWorkspace(@Param("boardId") Integer boardId,
                                     @Param("userId") Integer userId );
 
+    @Query("SELECT CASE WHEN COUNT(b) > 0 THEN true ELSE false END " +
+            " FROM Board b JOIN b.boardMembers bm " +
+            " WHERE b.boardId = :boardId AND bm.user.userId =:userId ")
+    boolean isUserBelongBoard(@Param("boardId") Integer boardId ,
+                              @Param("userId") Integer userId);
+
+    @Query("SELECT CASE WHEN COUNT(b) > 0 THEN true ELSE false END " +
+            " FROM Board b JOIN b.boardMembers bm" +
+            " WHERE b.boardId= :boardId AND bm.user.userId = :userId " +
+            " AND bm.role LIKE '%ADMIN%'  ")
+    boolean isUserAdminBoard(@Param("boardId") Integer boardId,
+                             @Param("userId") Integer userId ) ;
+
 }

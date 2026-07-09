@@ -131,6 +131,8 @@ create table cards
 	order_index float not null ,
 	create_at datetime,
 	delete_at datetime default null,
+	owner_id int
+	foreign key references users(user_id),
 	board_list_id int ,
 	foreign key (board_list_id) references board_lists(board_list_id)
 )

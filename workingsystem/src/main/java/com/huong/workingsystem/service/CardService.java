@@ -6,13 +6,14 @@ import com.huong.workingsystem.model.response.PageResponse;
 import com.huong.workingsystem.model.response.card.CardDetailResponse;
 import com.huong.workingsystem.model.response.card.CardSummaryResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
 public interface CardService {
     CardDetailResponse getCardDetailById(Integer cardId) ;
     CardSummaryResponse  getCardSummaryById(Integer cardId);
-    CardDetailResponse createCard(CardRequest cardRequest);
+    CardDetailResponse createCard(CardRequest cardRequest , Authentication authentication);
     CardDetailResponse updateCard(Integer cardId , CardRequest cardRequest);
     void archiveCard(Integer cardId);
     CardSummaryResponse restoreCard(Integer cardId);

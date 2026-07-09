@@ -27,6 +27,7 @@ public class CardDetailResponse {
     private LocalDateTime endDate;
     private Double orderIndex;
     private LocalDateTime deleteAt;
+    private UserSummaryResponse owner;
     private List<LabelResponse> labels;
     private List<UserSummaryResponse> users;
     private List<AttachmentResponse> attachments;

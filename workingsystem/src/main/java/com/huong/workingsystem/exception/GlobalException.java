@@ -22,7 +22,7 @@ public class GlobalException {
             "UC_WORKSPACE_EMAIL" , "Email was invited"
     );
 
-    @ExceptionHandler(RuntimeException.class)
+    @ExceptionHandler({RuntimeException.class, IllegalArgumentException.class})
     public ResponseEntity<ApiResponse<Object>> handleRunTimeException(RuntimeException e) {
         System.out.println("Loi  run time " + e.getMessage());
         ApiResponse<Object> response =  ApiResponse.builder()

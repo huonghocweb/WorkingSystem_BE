@@ -45,8 +45,9 @@ public class AuthApi {
     private long durationInSeconds;
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<Object>> authenticate(@RequestBody AuthRequest authRequest) throws Exception {
-        System.out.println("AuthRequest:"  +authRequest);
-        System.out.println("durationInSeconds: " + durationInSeconds);
+        System.out.println("login ");
+      //  System.out.println("AuthRequest:"  +authRequest);
+      //  System.out.println("durationInSeconds: " + durationInSeconds);
         try{
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUserName(),authRequest.getPassword()));
         }catch (AuthenticationException e  ){
@@ -56,33 +57,30 @@ public class AuthApi {
        // System.out.println("userDetail:" + userDetails);
         String accessToken = jwtUtils.generateAccessToken(userDetails);
         String refreshToken = jwtUtils.generateRefreshToken(userDetails);
-        System.out.println("accessToken " + accessToken + "   Exp: " + jwtUtils.extractExpiration(accessToken));
-        System.out.println("refreshToken: " + refreshToken + "  Exp: " + jwtUtils.extractExpiration(refreshToken));
+       // System.out.println("accessToken " + accessToken + "   Exp: " + jwtUtils.extractExpiration(accessToken));
+       // System.out.println("refreshToken: " + refreshToken + "  Exp: " + jwtUtils.extractExpiration(refreshToken));
         refreshTokenService.saveRefreshToken(userDetails.getUsername() , refreshToken);
-        ResponseCookie  refreshCookie = ResponseCookie.from("refreshToken" , refreshToken)
-                .httpOnly(true)//Chặn JavaCript truy cập vào Cookie
-                .secure(true)//Trình duyệt chỉ được gửi cookie này qua HTTPS
-              //  .path("/api/auth/refresh")//Trình duyệt chỉ được gửi cookie theo path này
-                .path(("/"))
-                .maxAge(durationInSeconds)//Tuổi thọ cookie (giây).
-                .sameSite("Strict")//Ngăn trình duyệt gửi request chứa cookie  này đến từ trang web khác
+        AuthResponse authResponse = AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .accessTokenExpiresIn(jwtUtils.ACCESS_TOKEN_EXPIRATION )
+                .refreshTokenExpiresIn(jwtUtils.REFRESH_TOKEN_EXPIRATION)
+                .user(userDetails)
                 .build();
-        AuthResponse authResponse = new AuthResponse(accessToken , jwtUtils.extractExpiration(accessToken).getTime());
-        ApiResponse<Object> response = ApiResponse.builder()
+       //Be chỉ nên trả Token dạng Json, k nên tự ý setCookie
+        ApiResponse<Object> apiResponse = ApiResponse.builder()
                 .success(true)
                 .message("Login Successful")
                 .data(authResponse)
                 .build();
         return ResponseEntity.ok()
-                //Trinh duyệt nhận lệnh này sẽ tự động lưu  lại refreshCookie
-                // mỗi request được gửi theo  path  ở trên sẽ tự động đính kèm refreshCookie này
-                .header(HttpHeaders.SET_COOKIE , refreshCookie.toString())
-                .body(response) ;
+                .body(apiResponse) ;
     }
 
     @PostMapping("/refreshToken")
     public ResponseEntity<ApiResponse<Object>>  refreshAccessToken(@RequestBody Map<String , String> request) {
       //  System.out.println("Request:" + request );
+        System.out.println("Gia han token ");
         String newAccessToken="";
         String refreshToken =request.get("refreshToken");
         if(refreshToken == null){
@@ -93,13 +91,20 @@ public class AuthApi {
             String userName = jwtUtils.extractUserName(refreshToken);
             boolean isCheckRefresh = refreshTokenService.checkRefreshToken(refreshToken, userName  );
    //     System.out.println("Get new Access is: " + (isCheckRefresh ? "success" : "failed"));
-            if(isCheckRefresh){
+        if(!isCheckRefresh){
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false ,  "Check refresh Token failed",null));
+        }
               //  System.out.println("Token co trong db");
                 UserDetailCustom userDetails = userDetailService.loadUserByUsername(userName);
                  newAccessToken = jwtUtils.generateAccessToken(userDetails);
               //  System.out.println("new accessTOken:" + newAccessToken);
-            }
-            AuthResponse authResponse = new AuthResponse(newAccessToken, jwtUtils.extractExpiration(newAccessToken).getTime());
+
+            AuthResponse authResponse =AuthResponse.builder()
+                    .user(userDetails)
+                    .accessToken(newAccessToken)
+                    .accessTokenExpiresIn(jwtUtils.ACCESS_TOKEN_EXPIRATION)
+                    .build();
             ApiResponse<Object> apiResponse = ApiResponse.builder()
                     .success(true)
                     .data(isCheckRefresh? authResponse  : null )
@@ -112,7 +117,7 @@ public class AuthApi {
     public ResponseEntity<ApiResponse<Object>> logOut(
             @RequestBody Map<String , String> request
     ){
-        System.out.println("Log out pont");
+        System.out.println("Log out point" );
        String refreshToken = request.get("refreshToken");
         if(refreshToken != null) {
             String userName = jwtUtils.extractUserName(refreshToken);

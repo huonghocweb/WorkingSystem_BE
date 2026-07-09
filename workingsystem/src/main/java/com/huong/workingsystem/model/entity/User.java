@@ -58,6 +58,9 @@ public class User {
     @Column(name = "email")
     private String  email;
 
+    @OneToMany(mappedBy = "owner")
+    private List<Card> cards;
+
     @ManyToMany
     @JoinTable(
         name = "user_role" , 
@@ -70,7 +73,7 @@ public class User {
     private  List<Attachment>  attachments;
 
     @ManyToMany(mappedBy = "users")
-    private List<Card> cards;
+    private List<Card> ownedCards;
 
     @OneToMany(mappedBy="user")
     private List<Comment> comments;

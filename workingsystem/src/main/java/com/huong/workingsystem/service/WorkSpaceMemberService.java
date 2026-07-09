@@ -11,6 +11,7 @@ import java.util.List;
 public interface WorkSpaceMemberService {
     List<WorkspaceMemberResponse> getWorkspaceMembersByWorkspaceId(Integer workspaceId);
     WorkspaceMemberResponse createWorkspaceMember(WorkspaceMemberRequest workspaceMemberRequest ) ;
+    WorkspaceMemberResponse updateWorkspaceMember( WorkspaceMemberRequest workspaceMemberRequest);
     void deleteWorkspaceMember(Integer workspaceId, Integer userId  );
     List<WorkspaceMemberResponse> getWorkspaceMemberNotInBoard(Integer workspaceId, Integer boardId);
 }

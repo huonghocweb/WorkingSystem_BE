@@ -52,6 +52,11 @@ public class Card {
     @Column(name ="delete_at")
     private LocalDateTime deleteAt;
 
+
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
     @ManyToOne 
     @JoinColumn(name = "board_list_id")
     private BoardList boardList;

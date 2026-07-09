@@ -25,4 +25,16 @@ public interface CardRepo extends JpaRepository<Card, Integer> {
 
     @Query("SELECT c FROM Card c WHERE c.cardId=:cardId AND c.deleteAt is not null")
     Optional<Card> findCardArchive(@Param("cardId") Integer cardId);
+
+    @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END " +
+            " FROM Card c JOIN c.users u " +
+            " WHERE c.cardId = :cardId AND u.userId= :userId ")
+    boolean isCardAssignedByUser(@Param("cardId") Integer cardId ,
+                              @Param("userId")  Integer userId);
+
+    @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END " +
+            " FROM Card c  " +
+            " WHERE c.cardId=:cardId AND c.owner.userId=:userId ")
+    boolean isCardOwnedByUser(@Param("cardId") Integer cardId ,
+                              @Param("userId")  Integer userId);
 }

@@ -1,6 +1,7 @@
 package com.huong.workingsystem.repo;
 
 import com.huong.workingsystem.model.entity.BoardMember;
+import com.huong.workingsystem.model.entity.BoardMemberId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface BoardMemberRepo extends JpaRepository<BoardMember , Integer> {
+public interface BoardMemberRepo extends JpaRepository<BoardMember , BoardMemberId> {
     @Query("SELECT bm FROM BoardMember bm WHERE bm.board.boardId =:boardId ")
     List<BoardMember> getBoardMembersByBoardId(@Param("boardId") Integer boardId);
 

@@ -45,7 +45,7 @@ public class UserApi {
             @RequestParam("by") String sortBy,
             @RequestParam("order") String sortOrder
            ) {
-        System.out.println("get all user:  " + pageNumber + pageSize + sortBy + sortOrder);
+      //  System.out.println("get all user:  " + pageNumber + pageSize + sortBy + sortOrder);
         Direction sortDirection = sortOrder.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(sortDirection, sortBy);
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);

@@ -7,7 +7,6 @@ import com.huong.workingsystem.model.dto.UserDetailCustom;
 import com.huong.workingsystem.model.enums.ActionType;
 import com.huong.workingsystem.model.enums.ContextType;
 import com.huong.workingsystem.model.enums.EntityType;
-import com.huong.workingsystem.model.request.AttachmentRequest;
 import com.huong.workingsystem.model.request.CardRequest;
 import com.huong.workingsystem.model.request.CommentRequest;
 import com.huong.workingsystem.model.response.ApiResponse;
@@ -15,9 +14,8 @@ import com.huong.workingsystem.service.AttachmentService;
 import com.huong.workingsystem.service.CardService;
 import com.huong.workingsystem.service.CommentService;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,10 +55,11 @@ public class CardApi {
             contextType = ContextType.CARD , entityId = "#result.data.cardId")
     @PostMapping
     public ResponseEntity<Object> createCard(
-            @RequestPart("cardRequest")CardRequest cardRequest){
+            @RequestPart("cardRequest")CardRequest cardRequest,
+            Authentication authentication){
         ApiResponse<Object> apiResponse = ApiResponse.builder()
                 .success(true)
-                .data(cardService.createCard(cardRequest))
+                .data(cardService.createCard(cardRequest , authentication))
                 .message("Create card success")
                 .build();
         return ResponseEntity.ok(apiResponse);
@@ -69,9 +68,11 @@ public class CardApi {
     @TrackActivity(entityType = EntityType.CARD, actionType = ActionType.UPDATE,
             contextType = ContextType.CARD , entityId = "#result.data.cardId")
     @PutMapping("/{cardId}")
+    @PreAuthorize("@cardSecurity.isOwnerOrAssigned(#cardId , authentication)")
     public ResponseEntity<Object> updateCard(
             @PathVariable("cardId") Integer cardId ,
-            @RequestPart("cardRequest") CardRequest cardRequest
+            @RequestPart("cardRequest") CardRequest cardRequest,
+            Authentication authentication
     ){
         System.out.println("Update card 123:  "+ cardRequest);
         ApiResponse<Object> apiResponse = ApiResponse.builder()
@@ -83,6 +84,7 @@ public class CardApi {
     }
 
     @DeleteMapping("/archive/{cardId}")
+    @PreAuthorize("@cardSecurity.isOwnerOrAssigned(#cardId , authentication)")
     public ResponseEntity<Object> archiveCard(
             @PathVariable("cardId") Integer cardId
     ){
@@ -108,8 +110,10 @@ public class CardApi {
     }
 
     @PutMapping("/restore/{cardId}")
+    @PreAuthorize("@cardSecurity.isOwnerOrAssigned(#cardId , authentication)")
     public ResponseEntity<Object> restoreCard(
-            @PathVariable("cardId") Integer cardId
+            @PathVariable("cardId") Integer cardId,
+            Authentication authentication
     ){
         ApiResponse<Object> apiResponse  = ApiResponse.builder()
                 .success(true)
@@ -131,9 +135,11 @@ public class CardApi {
         return ResponseEntity.ok(apiResponse);
     }
     @PutMapping("/moveCard/{cardId}")
+    @PreAuthorize("@cardSecurity.isOwnerOrAssigned(#cardId , authentication)")
     public ResponseEntity<Object> updateCard(
             @PathVariable("cardId") Integer cardId ,
-            @RequestBody MoveCardRequest moveCardRequest
+            @RequestBody MoveCardRequest moveCardRequest,
+            Authentication authentication
             ) {
         System.out.println("move Card");
         ApiResponse<Object> apiResponse= ApiResponse.builder()
@@ -145,9 +151,11 @@ public class CardApi {
     }
 
     @PostMapping("/{cardId}/cardLabels/{labelId}")
+    @PreAuthorize("@cardSecurity.isOwnerOrAssigned(#cardId, authentication)")
     public ResponseEntity<Object> addLabelToCard(
             @PathVariable("cardId") Integer cardId,
-            @PathVariable("labelId") Integer labelId
+            @PathVariable("labelId") Integer labelId,
+            Authentication authentication
     ){
         System.out.println("add lable to  card: " + cardId + ": " + labelId);
         ApiResponse<Object> apiResponse= ApiResponse.builder()
@@ -159,9 +167,11 @@ public class CardApi {
     }
 
     @DeleteMapping("/{cardId}/cardLabels/{labelId}")
+    @PreAuthorize("@cardSecurity.isOwnerOrAssigned(#cardId, authentication)")
     public ResponseEntity<Object> deleteLabelFromCard(
             @PathVariable("cardId") Integer cardId,
-            @PathVariable("labelId") Integer labelId
+            @PathVariable("labelId") Integer labelId,
+            Authentication authentication
     ){
         System.out.println("deleted");
         cardService.deleteLabelFromCard(cardId, labelId);
@@ -178,9 +188,10 @@ public class CardApi {
             entityIdParam = "assigneeId",
             entityId = "#")
     @PostMapping("/{cardId}/cardAssignees/{assigneeId}")
+    @PreAuthorize("@cardSecurity.isOwnerOrAssigned(#cardId,authentication)")
     public  ResponseEntity<Object> addAssigneeToCard(
             @PathVariable("cardId") Integer cardId,
-            @PathVariable("assigneeId") Integer  assigneeId
+            @PathVariable("assigneeId") Integer  assigneeId, Authentication authentication
     ){
         System.out.println("add assignee" + cardId + "us" + assigneeId);
         ApiResponse<Object> apiResponse= ApiResponse.builder()
@@ -220,6 +231,7 @@ public class CardApi {
     @TrackActivity(actionType = ActionType.ADD, entityType = EntityType.FILE,
             contextType = ContextType.CARD , entityId = "#result.data.attachmentId")
     @PostMapping("/{cardId}/attachments")
+    @PreAuthorize("@cardSecurity.isOwnerOrAssigned(#cardId , authentication)")
     public ResponseEntity<Object> createAttachment(
             @PathVariable("cardId")  Integer cardId,
             @RequestPart("file") MultipartFile   file,
@@ -286,14 +298,16 @@ public class CardApi {
     @TrackActivity(actionType = ActionType.UPDATE, entityType = EntityType.COMMENT,
                     contextType = ContextType.CARD, entityId = "#result.data.commentId")
     @PutMapping("/comments/{commentId}")
+    @PreAuthorize("@cardSecurity.isOwnComment(#commentId, authentication)")
     public  ResponseEntity<Object> updateComment(
             @PathVariable("commentId") Integer commentId,
-            @RequestPart("commentRequest") CommentRequest commentRequest
+            @RequestPart("commentRequest") CommentRequest commentRequest,
+            Authentication authentication
     ){
         ApiResponse<Object>  apiResponse = ApiResponse.builder()
                 .success(true)
                 .data(commentService.updateComment(commentId, commentRequest))
-                .message("Update comment sucess")
+                .message("Update comment success")
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
@@ -301,8 +315,10 @@ public class CardApi {
     @TrackActivity(actionType = ActionType.DELETE,entityType = EntityType.COMMENT,
     contextType = ContextType.CARD, entityId = "#result.data.commentId")
     @DeleteMapping("/comments/{commentId}")
+    @PreAuthorize("hasRole('ADMIN') or @cardSecurity.isOwnComment(#commentId, authentication)")
     public ResponseEntity<Object> deleteComment(
-            @PathVariable("commentId")  Integer commentId)  {
+            @PathVariable("commentId")  Integer commentId,
+            Authentication authentication)  {
 
         ApiResponse<Object>  apiResponse  = ApiResponse.builder()
                 .success(true)
