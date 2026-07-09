@@ -1,5 +1,6 @@
 package com.huong.workingsystem.model.request;
 
+import com.huong.workingsystem.model.enums.WorkspaceRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,4 +15,5 @@ import java.util.List;
 public class WorkspaceMemberRequest {
     private Integer workspaceId;
     private Integer userId;
+    private WorkspaceRole role;
 }

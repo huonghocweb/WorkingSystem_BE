@@ -49,6 +49,7 @@ public class JWTRequestFilter extends OncePerRequestFilter {
 
         if (authorization != null && authorization.startsWith("Bearer ")) {
             jwtToken = authorization.substring(7);
+          //  System.out.println("Token found in JWTFilter:  " + jwtToken);
             try {
                 userName = jwtUtils.extractUserName(jwtToken);
                 String tokenType = jwtUtils.extractClaim(jwtToken, claims-> claims.get("type").toString());

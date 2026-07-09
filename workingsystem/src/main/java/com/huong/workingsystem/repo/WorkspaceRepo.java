@@ -16,4 +16,16 @@ public interface WorkspaceRepo extends JpaRepository<Workspace, Integer> {
     Page<Workspace> getWorkSpacesByUserId(@Param("userId")  Integer userId,
                                           Pageable pageable);
 
+    @Query("SELECT CASE WHEN COUNT(wp) > 0 THEN true ELSE false END " +
+            " FROM Workspace wp JOIN wp.workspaceMembers wpm " +
+            " WHERE wp.workspaceId =:workspaceId AND wpm.user.userId = :userId ")
+    boolean isUserBelongWorkspace(@Param("workspaceId") Integer  workspaceId ,
+                                  @Param("userId") Integer userId);
+
+    @Query("SELECT CASE WHEN COUNT(wp) >0 THEN true ELSE false END  " +
+            " FROM Workspace wp JOIN wp.workspaceMembers wpm " +
+            " WHERE wp.workspaceId = :workspaceId AND wpm.user.userId =:userId " +
+            " AND wpm.role LIKE 'ADMIN' ")
+    boolean isUserAdminWorkspace(@Param("workspaceId") Integer workspaceId ,
+                                 @Param("userId") Integer userId);
 }

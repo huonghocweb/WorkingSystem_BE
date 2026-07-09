@@ -41,6 +41,7 @@ public class WorkspaceMemberServiceImpl implements WorkSpaceMemberService {
     @Override
     @Transactional
     public WorkspaceMemberResponse createWorkspaceMember(WorkspaceMemberRequest workspaceMemberRequest) {
+        System.out.println("createWorkspaceMem: " + workspaceMemberRequest);
             Workspace workspace = workspaceRepo.findById(workspaceMemberRequest.getWorkspaceId())
                     .orElseThrow(()-> new EntityNotFoundException("Not found workspace"));
             Set<User> users = workspaceMemberRepo.getUserIdsExistsInWorkspace(workspaceMemberRequest.getWorkspaceId());
@@ -50,8 +51,20 @@ public class WorkspaceMemberServiceImpl implements WorkSpaceMemberService {
                 throw new EntityExistsException("User was invited before");
             }
             WorkspaceMemberId workspaceMemberId = new WorkspaceMemberId(workspaceMemberRequest.getWorkspaceId(), workspaceMemberRequest.getUserId());
-            WorkspaceMember workspaceMember = new WorkspaceMember(workspaceMemberId, WorkspaceRole.MEMBER,workspace,user);
+            WorkspaceMember workspaceMember = new WorkspaceMember(workspaceMemberId,workspaceMemberRequest.getRole(),workspace,user);
             return workspaceMemberMapper.convertEnToRes(workspaceMemberRepo.save(workspaceMember));
+    }
+
+    @Override
+    public WorkspaceMemberResponse updateWorkspaceMember( WorkspaceMemberRequest workspaceMemberRequest) {
+        System.out.println("Update");
+        WorkspaceMemberId workspaceMemberId = new WorkspaceMemberId(workspaceMemberRequest.getWorkspaceId(), workspaceMemberRequest.getUserId());
+        return workspaceMemberRepo.findById(workspaceMemberId).map(workspaceMemberExists -> {
+            WorkspaceMember workspaceMember = workspaceMemberMapper.updateEntityFromRequest(workspaceMemberRequest , workspaceMemberExists);
+            System.out.println("info: " + workspaceMember.getWorkspaceMemberId().getWorkspaceId() + " " + workspaceMember.getWorkspaceMemberId().getUserId());
+            System.out.println("role:  " + workspaceMember.getRole());
+            return  workspaceMemberMapper.convertEnToRes(workspaceMemberRepo.save(workspaceMember));
+        }).orElseThrow(() -> new EntityNotFoundException("not found workspaceMember")   );
     }
 
     @Override

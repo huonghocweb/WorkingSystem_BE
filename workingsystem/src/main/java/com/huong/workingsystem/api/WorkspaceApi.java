@@ -3,6 +3,7 @@ package com.huong.workingsystem.api;
 import com.cloudinary.Api;
 import com.huong.workingsystem.model.dto.UserDetailCustom;
 import com.huong.workingsystem.model.entity.WorkspaceMemberId;
+import com.huong.workingsystem.model.enums.WorkspaceRole;
 import com.huong.workingsystem.model.request.WorkspaceInvitationRequest;
 import com.huong.workingsystem.model.request.WorkspaceMemberRequest;
 import com.huong.workingsystem.model.request.WorkspaceRequest;
@@ -19,10 +20,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/workspaces/v1")
@@ -34,21 +37,22 @@ public class WorkspaceApi {
     private final UserService userService;
     private final WorkspaceInvitationService workspaceInvitationService;
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/user")
     public ResponseEntity<ApiResponse<Object>> getWorkSpaceByUserId(
-            @PathVariable("userId")  Integer userId,
+            Authentication authentication,
             @RequestParam("page") Integer page,
             @RequestParam("size") Integer size ,
             @RequestParam("by") String sortBy ,
             @RequestParam("order") String sortOrder
     ){
+        UserDetailCustom userDetailCustom = (UserDetailCustom)  authentication.getPrincipal();
+      //  System.out.println("Get workspace by userId: " + userDetailCustom.getUserId());
         Sort.Direction direction = sortOrder.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC ;
         Sort sort = Sort.by(direction, sortBy);
         Pageable pageable = PageRequest.of(page , size , sort);
-
         ApiResponse<Object> apiResponse = ApiResponse.builder()
                 .success(true)
-                .data(workSpaceService.getWorkSpacesByUserId(userId , pageable))
+                .data(workSpaceService.getWorkSpacesByUserId(userDetailCustom.getUserId() , pageable))
                 .message("Get workSpaces by userId success ")
                 .build();
         return ResponseEntity.ok(apiResponse);
@@ -61,6 +65,7 @@ public class WorkspaceApi {
             @RequestParam("by") String sortBy,
             @RequestParam("order") String sortOrder
     ){
+        System.out.println("Get All workspace");
         Sort.Direction direction = Objects.equals(sortOrder , "asc") ? Sort.Direction.ASC : Sort.Direction.DESC ;
         Sort sort = Sort.by(direction, sortBy);
         Pageable pageable = PageRequest.of(page , size , sort);
@@ -72,11 +77,14 @@ public class WorkspaceApi {
         return ResponseEntity.ok(apiResponse);
     }
 
+
     @GetMapping("/{workSpaceId}")
+    @PreAuthorize("@workspaceSecurity.isUserBelongWorkspace(#workspaceId, authentication)")
     public ResponseEntity<Object> getWorkSpaceById(
             @PathVariable("workSpaceId") Integer workSpaceId,
             Authentication authentication
     ){
+        System.out.println("Get workspace By  Id: " + workSpaceId);
         UserDetailCustom userDetailCustom = (UserDetailCustom) authentication.getPrincipal();
         ApiResponse<Object> apiResponse = ApiResponse.builder()
                 .success(true)
@@ -86,6 +94,24 @@ public class WorkspaceApi {
         return ResponseEntity.ok(apiResponse);
     }
 
+    @GetMapping("/workspaceRoles")
+    public  ResponseEntity<Object> getWorkspaceRoles() {
+        System.out.println("GEt workspaceRoles");
+        List<Map<String , String >> workspaceRoles = Arrays.stream(WorkspaceRole.values())
+                .map(role -> {
+                    Map<String , String> map = new HashMap<>();
+                    map.put("code", role.getCode()) ;
+                    map.put("displayName", role.getDisplayName());
+                    return map;
+                })
+                .collect(Collectors.toList());
+        ApiResponse<Object> apiResponse = ApiResponse.builder()
+                .success(true)
+                .message("Get all workspaceRoles")
+                .data(workspaceRoles)
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
     @PostMapping
     public ResponseEntity<Object> createWorkSpace(
             @RequestPart("workspaceRequest") WorkspaceRequest workspaceRequest,
@@ -114,8 +140,10 @@ public class WorkspaceApi {
     }
 
     @DeleteMapping("/{workSpaceId}"  )
+    @PreAuthorize("@workspaceSecurity.isAdminWorkspace(#workspaceId, authentication)")
     public ResponseEntity<Object>  deleteWorkSpace(
-            @PathVariable("workSpaceId") Integer workSpaceId
+            @PathVariable("workSpaceId") Integer workSpaceId,
+            Authentication authentication
     ) {
 
         workSpaceService.deleteWorkSpace(workSpaceId);
@@ -127,9 +155,11 @@ public class WorkspaceApi {
     }
 
     @DeleteMapping("/workspaceMembers/{workspaceId}/{userId}")
+    @PreAuthorize("@workspaceSecurity.isAdminWorkspace(#workspaceId, authentication)")
     public ResponseEntity<Object> removeMemberFromWorkspace(
             @PathVariable("workspaceId") Integer workspaceId   ,
-            @PathVariable("userId") Integer userId
+            @PathVariable("userId") Integer userId,
+            Authentication authentication
             ){
         workSpaceMemberService.deleteWorkspaceMember(workspaceId,userId  );
         ApiResponse<Object> apiResponse = ApiResponse.builder()
@@ -176,13 +206,30 @@ public class WorkspaceApi {
     }
 
     @PostMapping("/invitation")
+    @PreAuthorize("@workspaceSecurity.isAdminWorkspace(#workspaceMemberRequest.workspaceId , authentication)")
     public ResponseEntity<Object> addUserToWorkspace(
-            @RequestPart("workspaceMemberRequest") WorkspaceMemberRequest workspaceMemberRequest
+            @RequestPart("workspaceMemberRequest") WorkspaceMemberRequest workspaceMemberRequest,
+            Authentication authentication
     ){
         ApiResponse<Object> apiResponse = ApiResponse.builder()
                 .success(true)
                 .data(workSpaceMemberService.createWorkspaceMember(workspaceMemberRequest))
                 .message("Add user to workspace success")
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @PutMapping("/invitation")
+    @PreAuthorize("@workspaceSecurity.isAdminWorkspace(#workspaceMemberRequest.workspaceId, authentication)")
+    public ResponseEntity<Object> updateWorkspaceMemberById(
+            @RequestPart("workspaceMemberRequest") WorkspaceMemberRequest workspaceMemberRequest,
+            Authentication authentication
+    ){
+        System.out.println("update workspaceMember: " + workspaceMemberRequest);
+        ApiResponse<Object> apiResponse = ApiResponse.builder()
+                .success(true)
+                .message("Update WorkspaceMember  ")
+                .data(workSpaceMemberService.updateWorkspaceMember(workspaceMemberRequest))
                 .build();
         return ResponseEntity.ok(apiResponse);
     }

@@ -1,6 +1,7 @@
 package com.huong.workingsystem.serviceImpl;
 
 import com.huong.workingsystem.mapper.CardMapper;
+import com.huong.workingsystem.model.dto.UserDetailCustom;
 import com.huong.workingsystem.model.entity.*;
 import com.huong.workingsystem.model.request.CardRequest;
 import com.huong.workingsystem.model.response.card.CardDetailResponse;
@@ -12,6 +13,7 @@ import com.huong.workingsystem.repo.UserRepo;
 import com.huong.workingsystem.service.CardService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,7 +49,7 @@ public class CardServiceImpl implements CardService {
 
     @Transactional
     @Override
-    public CardDetailResponse createCard(CardRequest cardRequest) {
+    public CardDetailResponse createCard(CardRequest cardRequest, Authentication authentication) {
         System.out.println("Add new card: " + cardRequest);
         Card card = cardMapper.convertReqToEn(cardRequest)  ;
        card.setStartDate(LocalDateTime.now());
@@ -56,6 +58,9 @@ public class CardServiceImpl implements CardService {
                    .orElseThrow(()-> new EntityNotFoundException("not  found board in CardRequest")));
        }
        card.setOrderIndex(1024 + cardRepo.getLastOrderIndexByBoardList(cardRequest.getBoardListId()));
+        UserDetailCustom userDetailCustom = (UserDetailCustom) authentication.getPrincipal();
+       card.setOwner(userRepo.findById(userDetailCustom.getUserId())
+               .orElseThrow(()-> new EntityNotFoundException("Not found user")));
        Card cardCreated = cardRepo.save(card);
         return cardMapper.convertEnToResDe(cardCreated);
     }

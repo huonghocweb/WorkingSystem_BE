@@ -18,8 +18,8 @@ import java.util.function.Function;
 public class JwtUtils {
 
     private final String SECRET_STRING = "huongphamworkingsystemproject_huongphamworkingsystemproject_very_long_key";
-    private final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60; // 1 hour
-    private final long REFRESH_TOKEN_EXPIRATION = 1000L * 60 * 60 * 24 * 7; // 7 days
+    public final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 15 ; // 15 minutes
+    public final long REFRESH_TOKEN_EXPIRATION = 1000L * 60 * 60 * 24 * 7; // 7 days
 
     private SecretKey getSigningKey() {
         byte[] keyBytes = SECRET_STRING.getBytes(StandardCharsets.UTF_8);

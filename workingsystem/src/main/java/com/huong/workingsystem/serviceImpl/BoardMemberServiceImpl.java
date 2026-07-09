@@ -56,6 +56,16 @@ public class BoardMemberServiceImpl implements BoardMemberService   {
     }
 
     @Override
+    public BoardMemberResponse updateBoardMember(BoardMemberRequest boardMemberRequest) {
+        BoardMemberId boardMemberId = new BoardMemberId(boardMemberRequest.getBoardId(), boardMemberRequest.getUserId())    ;
+        return boardMemberRepo.findById(boardMemberId).map(boardMemberExists -> {
+            BoardMember boardMember = boardMemberMapper.updateEntityFormRequest(boardMemberRequest, boardMemberExists);
+            System.out.println("new BoardMem: " + boardMember.getRole());
+            return boardMemberMapper.convertEnToRes(boardMemberRepo.save(boardMember));
+        }).orElseThrow(() -> new EntityNotFoundException("Not found boardMember"));
+    }
+
+    @Override
     public void deleteBoardMember(Integer boardId, Integer userId) {
         BoardMember boardMember = boardMemberRepo.getBoardMemberByBoardAndUserId(boardId ,userId)
                 .orElseThrow(()-> new EntityNotFoundException("Not found boardMember"));
