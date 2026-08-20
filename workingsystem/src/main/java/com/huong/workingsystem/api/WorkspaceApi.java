@@ -273,4 +273,16 @@ public class WorkspaceApi {
                 .build();
         return ResponseEntity.ok(apiResponse);
     }
+
+    @GetMapping("/owned-by/{userId}")
+    public ResponseEntity<Object> getWorkspacesOwnedByUser(
+            @PathVariable("userId") Integer userId
+    ) {
+        ApiResponse<Object> apiResponse = ApiResponse.builder()
+                .success(true)
+                .message("Get workspaces owned by user")
+                .data(workSpaceService.getWorkspaceOwnedByUser(userId))
+                .build();
+        return ResponseEntity.ok(apiResponse );
+    }
 }

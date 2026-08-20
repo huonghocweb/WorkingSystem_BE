@@ -18,7 +18,7 @@ public class CardRequest {
     private String cardTitle;
     private String cardDescription;
     private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDateTime dueDate;
     private Double orderIndex;
     private Integer  boardListId;
    // private List<Integer> labelIds;

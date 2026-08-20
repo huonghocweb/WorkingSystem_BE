@@ -64,4 +64,12 @@ public class ActivityLog {
     @Column(name = "context_type")
     private String contextType;
 
+    @Column(name = "old_value")
+    private String oldValue;
+
+    @Column(name = "new_value")
+    private String newValue;
+
+    @Column(name = "field_name")
+    private String fieldName;
 }

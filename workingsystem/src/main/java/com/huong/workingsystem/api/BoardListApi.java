@@ -1,9 +1,10 @@
 package com.huong.workingsystem.api;
 
-import com.cloudinary.Api;
+import com.huong.workingsystem.model.enums.BoardListTypeCode;
 import com.huong.workingsystem.model.request.BoardListRequest;
 import com.huong.workingsystem.model.response.ApiResponse;
 import com.huong.workingsystem.service.BoardListService;
+import com.huong.workingsystem.service.BoardListTypeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,17 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BoardListApi {
     private final BoardListService boardListService;
+    private  final BoardListTypeService boardListTypeService ;
+
+    @GetMapping("/boardListTypeCode")
+    public ResponseEntity<Object> getBoardListTypeCode() {
+        ApiResponse<Object> apiResponse = ApiResponse.builder()
+                .success(true)
+                .message("Get boardList type  code success")
+                .data(boardListTypeService.getBoardListType())
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
 
     @PostMapping
     public ResponseEntity<Object> createBoardList(

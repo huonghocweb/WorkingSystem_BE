@@ -57,8 +57,8 @@ public class AuthApi {
        // System.out.println("userDetail:" + userDetails);
         String accessToken = jwtUtils.generateAccessToken(userDetails);
         String refreshToken = jwtUtils.generateRefreshToken(userDetails);
-       // System.out.println("accessToken " + accessToken + "   Exp: " + jwtUtils.extractExpiration(accessToken));
-       // System.out.println("refreshToken: " + refreshToken + "  Exp: " + jwtUtils.extractExpiration(refreshToken));
+        System.out.println("accessToken " + accessToken + "   Exp: " + jwtUtils.extractExpiration(accessToken));
+        System.out.println("refreshToken: " + refreshToken + "  Exp: " + jwtUtils.extractExpiration(refreshToken));
         refreshTokenService.saveRefreshToken(userDetails.getUsername() , refreshToken);
         AuthResponse authResponse = AuthResponse.builder()
                 .accessToken(accessToken)

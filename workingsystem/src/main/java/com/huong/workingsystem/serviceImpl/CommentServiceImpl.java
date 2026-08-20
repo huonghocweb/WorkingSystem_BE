@@ -1,6 +1,8 @@
 package com.huong.workingsystem.serviceImpl;
 
+import com.huong.workingsystem.context.ActivityContextHolder;
 import com.huong.workingsystem.mapper.CommentMapper;
+import com.huong.workingsystem.model.entity.Card;
 import com.huong.workingsystem.model.entity.Comment;
 import com.huong.workingsystem.model.request.CommentRequest;
 import com.huong.workingsystem.model.response.CommentResponse;
@@ -30,12 +32,18 @@ public class CommentServiceImpl implements CommentService {
                     .orElseThrow(()-> new EntityNotFoundException("Not found user") ));
         }
         if(commentRequest.getCardId() != null) {
-            comment.setCard(cardRepo.findById(commentRequest.getCardId())
-                    .orElseThrow(()-> new EntityNotFoundException("Not found  card")));
+            Card cardById = cardRepo.findById(commentRequest.getCardId())
+                    .orElseThrow(()-> new EntityNotFoundException("Not found  card"));
+            ActivityContextHolder.put("contextName", cardById.getCardTitle());
+            comment.setCard(cardById);
         }
         comment.setCreateAt(LocalDateTime.now());
         comment.setParent(null);
-        return commentMapper.convertEnToRes(commentRepo.save(comment));
+        Comment commentCreated = commentRepo.save(comment);
+        ActivityContextHolder.put("entityId", commentCreated.getCommentId().toString());
+        ActivityContextHolder.put("entityName" , commentCreated.getCommentContent());
+
+        return commentMapper.convertEnToRes(commentCreated);
     }
 
     @Override

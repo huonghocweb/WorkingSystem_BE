@@ -1,5 +1,5 @@
 package com.huong.workingsystem.model.enums;
 
 public enum ContextType {
-    CARD , BOARD , WORKSPACE
+    CARD , BOARD , WORKSPACE, BOARDLIST
 }

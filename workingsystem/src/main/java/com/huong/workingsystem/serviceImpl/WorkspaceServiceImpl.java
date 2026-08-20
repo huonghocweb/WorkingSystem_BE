@@ -101,4 +101,12 @@ public class WorkspaceServiceImpl implements WorkspaceService {
            }
             workSpaceRepo.deleteById(workSpaceId);
     }
+
+    @Override
+    public List<WorkspaceResponse> getWorkspaceOwnedByUser(Integer ownerId) {
+        List<Workspace> workspaceResponses = workSpaceRepo.getWorkspacesOwnedByUser(ownerId);
+        return workspaceResponses.stream()
+                .map(workSpaceMapper :: convertEnToRes)
+                .toList();
+    }
 }

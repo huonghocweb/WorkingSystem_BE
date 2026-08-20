@@ -6,6 +6,7 @@ import com.huong.workingsystem.model.entity.Card;
 import com.huong.workingsystem.model.request.BoardListRequest;
 import com.huong.workingsystem.model.response.BoardListResponse;
 import com.huong.workingsystem.repo.BoardListRepo;
+import com.huong.workingsystem.repo.BoardListTypeRepo;
 import com.huong.workingsystem.repo.BoardRepo;
 import com.huong.workingsystem.repo.CardRepo;
 import com.huong.workingsystem.service.BoardListService;
@@ -26,11 +27,14 @@ public class BoardListServiceImpl implements BoardListService {
     private final BoardListMapper boardListMapper;
     private final BoardRepo boardRepo;
     private final CardRepo cardRepo;
+    private final BoardListTypeRepo boardListTypeRepo;
     @Override
     public BoardListResponse createBoardList(BoardListRequest boardListRequest) {
         BoardList boardList = boardListMapper.convertReqToEn(boardListRequest);
         boardList.setBoard(boardRepo.findById(boardListRequest.getBoardId())
                 .orElseThrow(()-> new EntityNotFoundException("Not found board")));
+        boardList.setBoardListType(boardListTypeRepo.findById(boardListRequest.getBoardListTypeId() )
+                .orElseThrow(()->  new EntityNotFoundException("Not found boardListType")));
         boardList.setPosition(100);
         boardList.setCreateAt(LocalDateTime.now());
         return boardListMapper.convertEnToRes(boardListRepo.save(boardList));

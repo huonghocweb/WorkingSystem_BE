@@ -20,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.text.html.parser.Entity;
 import java.io.IOException;
 
 @RestController
@@ -52,7 +53,7 @@ public class CardApi {
     }
 
     @TrackActivity(actionType = ActionType.ADD, entityType = EntityType.CARD ,
-            contextType = ContextType.CARD , entityId = "#result.data.cardId")
+            contextType = ContextType.BOARDLIST , entityId = "#result.data.cardId")
     @PostMapping
     public ResponseEntity<Object> createCard(
             @RequestPart("cardRequest")CardRequest cardRequest,
@@ -68,7 +69,7 @@ public class CardApi {
     @TrackActivity(entityType = EntityType.CARD, actionType = ActionType.UPDATE,
             contextType = ContextType.CARD , entityId = "#result.data.cardId")
     @PutMapping("/{cardId}")
-    @PreAuthorize("@cardSecurity.isOwnerOrAssigned(#cardId , authentication)")
+    @PreAuthorize("hasRole('ADMIN') or @cardSecurity.isOwnerOrAssigned(#cardId , authentication)")
     public ResponseEntity<Object> updateCard(
             @PathVariable("cardId") Integer cardId ,
             @RequestPart("cardRequest") CardRequest cardRequest,
@@ -135,7 +136,9 @@ public class CardApi {
         return ResponseEntity.ok(apiResponse);
     }
     @PutMapping("/moveCard/{cardId}")
-    @PreAuthorize("@cardSecurity.isOwnerOrAssigned(#cardId , authentication)")
+    @PreAuthorize("hasRole('ADMIN')  or @cardSecurity.isOwnerOrAssigned(#cardId , authentication)")
+    @TrackActivity(actionType = ActionType.MOVE, entityType = EntityType.CARD, entityIdParam = "cardId",
+    contextType = ContextType.CARD, entityId = "#")
     public ResponseEntity<Object> updateCard(
             @PathVariable("cardId") Integer cardId ,
             @RequestBody MoveCardRequest moveCardRequest,
@@ -151,7 +154,9 @@ public class CardApi {
     }
 
     @PostMapping("/{cardId}/cardLabels/{labelId}")
-    @PreAuthorize("@cardSecurity.isOwnerOrAssigned(#cardId, authentication)")
+    @PreAuthorize("hasRole('ADMIN') or @cardSecurity.isOwnerOrAssigned(#cardId, authentication)")
+    @TrackActivity(actionType = ActionType.ADD,entityType = EntityType.LABEL,
+    entityId = "#", contextType = ContextType.CARD , entityIdParam = "labelId")
     public ResponseEntity<Object> addLabelToCard(
             @PathVariable("cardId") Integer cardId,
             @PathVariable("labelId") Integer labelId,
@@ -168,6 +173,8 @@ public class CardApi {
 
     @DeleteMapping("/{cardId}/cardLabels/{labelId}")
     @PreAuthorize("@cardSecurity.isOwnerOrAssigned(#cardId, authentication)")
+    @TrackActivity(entityType = EntityType.LABEL, entityId = "#", entityIdParam = "labelId", actionType = ActionType.DELETE,
+    contextType = ContextType.CARD)
     public ResponseEntity<Object> deleteLabelFromCard(
             @PathVariable("cardId") Integer cardId,
             @PathVariable("labelId") Integer labelId,
@@ -188,7 +195,7 @@ public class CardApi {
             entityIdParam = "assigneeId",
             entityId = "#")
     @PostMapping("/{cardId}/cardAssignees/{assigneeId}")
-    @PreAuthorize("@cardSecurity.isOwnerOrAssigned(#cardId,authentication)")
+    @PreAuthorize("hasRole('ADMIN') or @cardSecurity.isOwnerOrAssigned(#cardId,authentication)")
     public  ResponseEntity<Object> addAssigneeToCard(
             @PathVariable("cardId") Integer cardId,
             @PathVariable("assigneeId") Integer  assigneeId, Authentication authentication

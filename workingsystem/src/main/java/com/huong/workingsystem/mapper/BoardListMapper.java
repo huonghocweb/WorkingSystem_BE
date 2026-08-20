@@ -9,7 +9,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring", uses = {CardMapper.class})
+@Mapper(componentModel = "spring", uses = {CardMapper.class, BoardListMapper.class})
 public interface BoardListMapper {
 
     BoardListResponse convertEnToRes(BoardList boardList);

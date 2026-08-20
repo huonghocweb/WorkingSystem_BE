@@ -43,15 +43,17 @@ public class Card {
     @Column(name ="start_date")
     private LocalDateTime startDate; 
 
-    @Column(name ="end_date")
-    private LocalDateTime endDate;
+    @Column(name ="due_date")
+    private LocalDateTime dueDate;
+
+    @Column(name = "resolved_at")
+    private LocalDateTime resolvedAt;
 
     @Column(name = "order_index")
     private Double orderIndex;
 
     @Column(name ="delete_at")
     private LocalDateTime deleteAt;
-
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
@@ -82,5 +84,8 @@ public class Card {
 
     @OneToMany(mappedBy="card")
     private List<Comment> comments;
+
+    @OneToMany(mappedBy = "card")
+    private List<CardListDuration> cardListDurations;
 
 }

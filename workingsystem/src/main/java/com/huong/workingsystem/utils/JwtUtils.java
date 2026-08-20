@@ -18,7 +18,7 @@ import java.util.function.Function;
 public class JwtUtils {
 
     private final String SECRET_STRING = "huongphamworkingsystemproject_huongphamworkingsystemproject_very_long_key";
-    public final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 15 ; // 15 minutes
+    public final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 600 ; // 15 minutes
     public final long REFRESH_TOKEN_EXPIRATION = 1000L * 60 * 60 * 24 * 7; // 7 days
 
     private SecretKey getSigningKey() {

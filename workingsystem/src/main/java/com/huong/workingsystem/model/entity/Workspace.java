@@ -30,6 +30,10 @@ public class Workspace {
     private List<Board> boards;
 
     @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
+    @ManyToOne
     @JoinColumn(name ="visibility_id")
     private Visibility visibility;
 

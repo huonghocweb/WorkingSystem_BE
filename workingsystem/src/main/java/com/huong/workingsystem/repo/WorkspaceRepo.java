@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 
 @Repository
 public interface WorkspaceRepo extends JpaRepository<Workspace, Integer> {
@@ -28,4 +30,8 @@ public interface WorkspaceRepo extends JpaRepository<Workspace, Integer> {
             " AND wpm.role LIKE 'ADMIN' ")
     boolean isUserAdminWorkspace(@Param("workspaceId") Integer workspaceId ,
                                  @Param("userId") Integer userId);
+
+    @Query("SELECT wp FROM Workspace wp " +
+            " WHERE wp.owner.userId = :ownerId")
+    List<Workspace> getWorkspacesOwnedByUser(@Param("ownerId")Integer ownerId);
 }

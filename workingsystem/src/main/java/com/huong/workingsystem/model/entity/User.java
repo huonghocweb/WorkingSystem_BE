@@ -1,18 +1,11 @@
 package com.huong.workingsystem.model.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import com.huong.workingsystem.model.enums.UserStatus;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -58,8 +51,30 @@ public class User {
     @Column(name = "email")
     private String  email;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private UserStatus status;
+
+    @Column(name = "is_online")
+    private Boolean isOnline;
+
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
+
+    @Column(name ="last_active_at")
+    private  LocalDateTime lastActiveAt;
+
+    @Column(name = "create_at")
+    private LocalDateTime createAt;
+
+    @Column(name = "update_at")
+    private  LocalDateTime updateAt;
+
     @OneToMany(mappedBy = "owner")
-    private List<Card> cards;
+    private List<Workspace> ownedWorkspaces;
+
+    @OneToMany(mappedBy = "owner")
+    private List<Card> ownedCards;
 
     @ManyToMany
     @JoinTable(
@@ -73,7 +88,7 @@ public class User {
     private  List<Attachment>  attachments;
 
     @ManyToMany(mappedBy = "users")
-    private List<Card> ownedCards;
+    private List<Card> cards;
 
     @OneToMany(mappedBy="user")
     private List<Comment> comments;
@@ -89,4 +104,5 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<BoardMember> boardMembers;
+
 }

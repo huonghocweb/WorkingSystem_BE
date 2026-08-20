@@ -24,7 +24,8 @@ public class CardDetailResponse {
     private String cardTitle;
     private String cardDescription;
     private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDateTime dueDate;
+    private LocalDateTime resolvedAt;
     private Double orderIndex;
     private LocalDateTime deleteAt;
     private UserSummaryResponse owner;

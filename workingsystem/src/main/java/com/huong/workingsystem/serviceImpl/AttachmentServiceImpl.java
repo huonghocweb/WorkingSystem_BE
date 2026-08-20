@@ -1,7 +1,9 @@
 package com.huong.workingsystem.serviceImpl;
 
+import com.huong.workingsystem.context.ActivityContextHolder;
 import com.huong.workingsystem.mapper.AttachmentMapper;
 import com.huong.workingsystem.model.entity.Attachment;
+import com.huong.workingsystem.model.entity.Card;
 import com.huong.workingsystem.model.request.AttachmentRequest;
 import com.huong.workingsystem.model.response.AttachmentResponse;
 import com.huong.workingsystem.repo.AttachmentRepo;
@@ -41,9 +43,10 @@ public class AttachmentServiceImpl implements AttachmentService {
     public AttachmentResponse createAttachment(Integer cardId , Integer userId, MultipartFile file) throws IOException {
         Map<String , Object> fileInfo = cloudinaryService.uploadFile(file, "attachment");
         String originalName = file.getOriginalFilename();
+        Card cardById = cardRepo.findById(cardId)
+                .orElseThrow(()-> new EntityNotFoundException("not found attachment "));
         Attachment attachment = Attachment.builder()
-                .card(cardRepo.findById(cardId)
-                        .orElseThrow(()-> new EntityNotFoundException("not found attachment ")))
+                .card(cardById)
                 .user(userRepo.findById(userId)
                         .orElseThrow(()-> new EntityNotFoundException("not found user")))
                 .createAt(LocalDateTime.now())
@@ -52,7 +55,11 @@ public class AttachmentServiceImpl implements AttachmentService {
                 .fileType(fileInfo.get("resource_type").toString())
                 .fileSize(((Number) fileInfo.get("bytes")).longValue())
                 .build();
-        return  attachmentMapper.convertEnToRes(attachmentRepo.save(attachment));
+        Attachment attachmentCreated = attachmentRepo.save(attachment);
+        ActivityContextHolder.put("entityId", attachmentCreated.getAttachmentId().toString());
+        ActivityContextHolder.put("entityName", attachmentCreated.getFileName());
+        ActivityContextHolder.put("contextName", cardById.getCardTitle());
+        return  attachmentMapper.convertEnToRes(attachmentCreated);
     }
 
     @Override
@@ -60,6 +67,9 @@ public class AttachmentServiceImpl implements AttachmentService {
         Attachment attachment = attachmentRepo.findById(attachmentId)
                 .orElseThrow(()-> new EntityNotFoundException("Not  found attachment"));
         attachment.setDeleteAt(LocalDateTime.now());
+//        ActivityContextHolder.put("entityId", attachmentId.toString());
+//        ActivityContextHolder.put("entityName", attachment.getFileName());
+//        ActivityContextHolder.put("contextName", cardById.getCardTitle());
         return attachmentMapper.convertEnToRes(attachmentRepo.save(attachment));
     }
 }
