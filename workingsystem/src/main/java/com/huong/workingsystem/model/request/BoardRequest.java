@@ -20,4 +20,6 @@ import java.util.List;
 public class BoardRequest {
     private String boardTitle;
     private Integer workspaceId ;
+    private LocalDateTime startDate;
+    private  LocalDateTime dueDate;
 }

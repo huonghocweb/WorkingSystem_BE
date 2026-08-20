@@ -6,6 +6,7 @@ import com.huong.workingsystem.model.entity.BoardMember;
 import com.huong.workingsystem.model.entity.BoardMemberId;
 import com.huong.workingsystem.model.entity.Card;
 import com.huong.workingsystem.model.enums.BoardRole;
+import com.huong.workingsystem.model.enums.BoardStatus;
 import com.huong.workingsystem.model.request.BoardRequest;
 import com.huong.workingsystem.model.response.board.BoardResponse;
 import com.huong.workingsystem.repo.BoardMemberRepo;
@@ -69,6 +70,10 @@ public class BoardServiceImpl implements BoardService {
         }
         //nên update kiểm tra xem Workspace đó có bị trùng tên board  hay không
         board.setCreateAt(LocalDateTime.now());
+        if(boardRequest.getStartDate() == null ) {
+            board.setStartDate(LocalDateTime.now());
+        }
+        board.setBoardStatus(BoardStatus.ACTIVE);
         board.setColor(String.format("#%06x", new Random().nextInt(0xffffff + 1)));
         Board boardCreated = boardRepo.save(board);
         BoardMemberId  boardMemberId = BoardMemberId.builder()
@@ -89,13 +94,14 @@ public class BoardServiceImpl implements BoardService {
     @Override
     @Transactional
     public BoardResponse updateBoard(Integer boardId, BoardRequest boardRequest) {
-        return boardRepo.findById(boardId).map(boarExists -> {
-            Board boardTitleExists  = boardRepo.getBoardByBoardTitleAndWorkspace(boardRequest.getBoardTitle(), boarExists.getWorkspace().getWorkspaceId());
+        return boardRepo.findById(boardId).map(boardExists -> {
+            Board boardTitleExists  = boardRepo.getBoardByBoardTitleAndWorkspace(boardRequest.getBoardTitle(), boardExists.getWorkspace().getWorkspaceId());
             if(boardTitleExists != null &&  !boardTitleExists.getBoardId().equals(boardId))  {
                 throw  new EntityExistsException("BoardTitle is already used");
             }
-                boarExists = boardMapper.updateEntityFromRequest(boardRequest, boarExists);
-                return boardMapper.convertEnToRes(boardRepo.save(boarExists));
+                boardExists = boardMapper.updateEntityFromRequest(boardRequest, boardExists);
+                boardExists.setUpdateAt(LocalDateTime.now());
+                return boardMapper.convertEnToRes(boardRepo.save(boardExists));
                 }) .orElseThrow(()-> new EntityNotFoundException("not found Board"))    ;
     }
 

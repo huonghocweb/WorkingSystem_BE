@@ -12,6 +12,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface ActivityLogService {
     PageResponse<ActivityLogResponse> getActivityLogsByBoardId(Integer boardId , Pageable pageable);
-    void createActivityLogAndProcess(ActionType actionType , EntityType entityType, ContextType contextType ,
-                                     UserDetailCustom user , Integer contextId , Integer entityId);
+//    void createActivityLogAndProcess(ActionType actionType , EntityType entityType, ContextType contextType ,
+//                                     UserDetailCustom user , Integer contextId , Integer entityId);
 }

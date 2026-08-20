@@ -41,6 +41,7 @@ public class ActivityLogServiceImpl implements ActivityLogService {
     private final CommentRepo commentRepo;
     private final CloudinaryService cloudinaryService;
     private final UserMapper userMapper;
+    private final LabelRepo labelRepo;
 
     @Override
     public PageResponse<ActivityLogResponse> getActivityLogsByBoardId(Integer boardId, Pageable pageable) {
@@ -68,74 +69,76 @@ public class ActivityLogServiceImpl implements ActivityLogService {
 
     //Sau khi kích hoạt enable Async trong Application
     // dùng @Async để đánh dấu method sẽ được chạy trong thread ngầm khác
-    @Async
-    @Override
-    public void createActivityLogAndProcess(ActionType actionType, EntityType entityType, ContextType contextType, UserDetailCustom user, Integer contextId ,Integer entityId) {
-
-        //bổ sung thêm logic lấy  ra entity
-        try{
-            System.out.println("contextIdID:  " + contextId);
-            EntityInfo entityInfo = this.fetchEntityInfo(entityId , entityType);
-            System.out.println("entitInfo:  " + entityInfo);
-            Object contextObj = null;
-            String contextName = "";
-            if ("CARD".equalsIgnoreCase(contextType.name())) {
-                contextObj = cardRepo.findById(contextId).orElse(null);
-                if (contextObj instanceof Card c) {
-                    contextName = c.getCardTitle();
-                }
-            } else if ("BOARD".equals(contextType.name())) {
-                contextObj = boardRepo.findById(contextId).orElse(null);
-                if (contextObj instanceof Board b) {
-                    contextName = b.getBoardTitle();
-                }
-            }
-            System.out.println("contextName " + contextName);
-            String content = String.format("%s has %s %s: %s%s", user.getUsername(),actionType.name().toLowerCase(),entityType.name().toLowerCase()
-                    ,entityInfo!= null ?entityInfo.getEntityName() : "" ,
-                    (entityType == EntityType.CARD ? "" : String.format(" on %s %s",contextType.name().toLowerCase(),contextName )) );
-            System.out.println("content: " + content);
-            ActivityLog activityLog = ActivityLog.builder()
-                    .userId(user.getUserId())
-                    .userName(user.getUsername())
-                    .createAt(LocalDateTime.now())
-                    .actionType(actionType.name())
-                    .content(content)
-                    .extraData(entityInfo!= null  ?entityInfo.getEntityUrl() : null)
-                    .entityId(entityId)
-                    .entityType(entityType.name())
-                    .entityName(entityInfo!= null ? entityInfo.getEntityName() : null)
-                    .contextId(contextId !=  0 ? contextId  :  entityId)
-                    .contextType(contextType.name())
-                    .contextName(!contextName.isEmpty() ?contextName : entityInfo.getEntityName())
-                    .build();
-            activityLogRepo.save(activityLog);
-        }catch (Exception e){
-            System.out.println("Loi o worked thread: " + e.getMessage());
-        }
-    }
-
-    private EntityInfo fetchEntityInfo(Integer entityId , EntityType entityType){
-        if(entityId == null  ) return new EntityInfo(null , null);
-        return switch (entityType) {
-            case FILE -> attachmentRepo.findAttachmentIncludeDelete(entityId)
-                    .map(a -> new EntityInfo(a.getFileName() ,
-                            a.getFileType().contains("image") ?
-                            cloudinaryService.getImageUrl(a.getFilePublicId()) :
-                            cloudinaryService.getRawFileUrl(a.getFilePublicId())  ))
-                    .orElse(null);
-            case COMMENT ->  commentRepo.findCommentIncludeDelete(entityId)
-                    .map(c -> new EntityInfo(c.getCommentContent() ,null ))
-                    .orElse(null);
-            case MEMBER -> userRepo.findById(entityId)
-                    .map(u -> new EntityInfo(u.getUserName(), null))
-                    .orElse(null);
-            case CARD ->  cardRepo.findById(entityId)
-                    .map(c -> new EntityInfo(c.getCardTitle() , null))
-                    .orElse(null);
-            default ->  new EntityInfo(null , null);
-        };
-    }
+//    @Async
+//    @Override
+//    public void createActivityLogAndProcess(ActionType actionType, EntityType entityType, ContextType contextType, UserDetailCustom user, Integer contextId ,Integer entityId) {
+//        //bổ sung thêm logic lấy  ra entity
+//        try{
+//            System.out.println("contextIdID:  " + contextId);
+//            EntityInfo entityInfo = this.fetchEntityInfo(entityId , entityType);
+//            System.out.println("entitInfo:  " + entityInfo);
+//            Object contextObj = null;
+//            String contextName = "";
+//            if ("CARD".equalsIgnoreCase(contextType.name())) {
+//                contextObj = cardRepo.findById(contextId).orElse(null);
+//                if (contextObj instanceof Card c) {
+//                    contextName = c.getCardTitle();
+//                }
+//            } else if ("BOARD".equals(contextType.name())) {
+//                contextObj = boardRepo.findById(contextId).orElse(null);
+//                if (contextObj instanceof Board b) {
+//                    contextName = b.getBoardTitle();
+//                }
+//            }
+//            System.out.println("contextName " + contextName);
+//            String content = String.format("%s has %s %s: %s%s", user.getUsername(),actionType.name().toLowerCase(),entityType.name().toLowerCase()
+//                    ,entityInfo!= null ?entityInfo.getEntityName() : "" ,
+//                    (entityType == EntityType.CARD ? "" : String.format(" on %s %s",contextType.name().toLowerCase(),contextName )) );
+//            System.out.println("content: " + content);
+//            ActivityLog activityLog = ActivityLog.builder()
+//                    .userId(user.getUserId())
+//                    .userName(user.getUsername())
+//                    .createAt(LocalDateTime.now())
+//                    .actionType(actionType.name())
+//                    .content(content)
+//                    .extraData(entityInfo!= null  ?entityInfo.getEntityUrl() : null)
+//                    .entityId(entityId)
+//                    .entityType(entityType.name())
+//                    .entityName(entityInfo!= null ? entityInfo.getEntityName() : null)
+//                    .contextId(contextId !=  0 ? contextId  :  entityId)
+//                    .contextType(contextType.name())
+//                    .contextName(!contextName.isEmpty() ?contextName : entityInfo.getEntityName())
+//                    .build();
+//            activityLogRepo.save(activityLog);
+//        }catch (Exception e){
+//            System.out.println("Loi o worked thread: " + e.getMessage());
+//        }
+//    }
+//
+//    private EntityInfo fetchEntityInfo(Integer entityId , EntityType entityType){
+//        if(entityId == null  ) return new EntityInfo(null , null);
+//        return switch (entityType) {
+//            case FILE -> attachmentRepo.findAttachmentIncludeDelete(entityId)
+//                    .map(a -> new EntityInfo(a.getFileName() ,
+//                            a.getFileType().contains("image") ?
+//                            cloudinaryService.getImageUrl(a.getFilePublicId()) :
+//                            cloudinaryService.getRawFileUrl(a.getFilePublicId())  ))
+//                    .orElse(null);
+//            case COMMENT ->  commentRepo.findCommentIncludeDelete(entityId)
+//                    .map(c -> new EntityInfo(c.getCommentContent() ,null ))
+//                    .orElse(null);
+//            case MEMBER -> userRepo.findById(entityId)
+//                    .map(u -> new EntityInfo(u.getUserName(), null))
+//                    .orElse(null);
+//            case CARD ->  cardRepo.findById(entityId)
+//                    .map(c -> new EntityInfo(c.getCardTitle() , null))
+//                    .orElse(null);
+//            case LABEL ->  labelRepo.findById(entityId)
+//                    .map(lb -> new EntityInfo(lb.getLabelName(), null))
+//                    .orElse(null);
+//            default ->  new EntityInfo(null , null);
+//        };
+//    }
 
 
 }

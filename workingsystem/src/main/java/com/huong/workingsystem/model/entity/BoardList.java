@@ -7,8 +7,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.SQLRestriction;
 
 @Data
@@ -24,7 +22,7 @@ public class BoardList {
     private Integer boardListId;
 
     @Column(name ="board_list_title")
-    private  String boardListTitle; 
+    private String boardListTitle;
     
     @Column(name ="position")
     private  Integer position;
@@ -43,4 +41,11 @@ public class BoardList {
     @OrderBy("orderIndex ASC")
     @SQLRestriction("delete_at is null")
     private List<Card> cards;
+
+    @OneToMany(mappedBy = "boardList")
+    private List<CardListDuration> cardListDuration;
+
+    @ManyToOne
+    @JoinColumn(name = "board_list_type_id")
+    private BoardListType boardListType;
 }

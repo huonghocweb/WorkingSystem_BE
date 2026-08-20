@@ -43,7 +43,7 @@ public class BoardApi {
     private final ActivityLogService activityLogService;
 
     @GetMapping("/{boardId}")
-    @PreAuthorize("@boardSecurity.isUserBelongBoard(#boardId , authentication)")
+    @PreAuthorize("hasRole('ADMIN') or @boardSecurity.isUserBelongBoard(#boardId , authentication) ")
     public ResponseEntity<Object> getBoardById(
             @PathVariable("boardId") Integer boardId,
             Authentication authentication
@@ -107,7 +107,7 @@ public class BoardApi {
     }
 
     @PutMapping("/{boardId}" )
-    @PreAuthorize("@workspaceSecurity.isAdminWorkspace(#boardRequest.workspaceId, authentication)")
+    @PreAuthorize("hasRole('ADMIN')  or @workspaceSecurity.isAdminWorkspace(#boardRequest.workspaceId, authentication)")
     public ResponseEntity<Object> updateBoard(
             @PathVariable("boardId") Integer boardId ,
             @RequestPart("boardRequest")BoardRequest boardRequest
@@ -134,7 +134,7 @@ public class BoardApi {
     }
 
     @PostMapping("/boardMembers/addMemberToBoard")
-    @PreAuthorize("@boardSecurity.isUserAdminBoard(#boardMemberRequest.boardId , authentication)" )
+    @PreAuthorize("hasRole('ADMIN') or @boardSecurity.isUserAdminBoard(#boardMemberRequest.boardId , authentication)" )
     public ResponseEntity<Object> addMemberToBoard(
             @RequestPart("boardMemberRequest")BoardMemberRequest boardMemberRequest,
             Authentication authentication
@@ -149,7 +149,7 @@ public class BoardApi {
     }
 
     @PutMapping("/boardMembers")
-    @PreAuthorize("@boardSecurity.isUserAdminBoard(#boardMemberRequest.boardId, authentication)")
+    @PreAuthorize("hasRole('ADMIN') or @boardSecurity.isUserAdminBoard(#boardMemberRequest.boardId, authentication)")
     public ResponseEntity<Object> updateBoardMember(
             @RequestPart("boardMemberRequest") BoardMemberRequest boardMemberRequest ,
             Authentication authentication
@@ -163,7 +163,7 @@ public class BoardApi {
         return ResponseEntity.ok(apiResponse);
     }
     @DeleteMapping("/boardMembers/{boardId}/{userId}")
-    @PreAuthorize("@boardSecurity.isUserAdminBoard(#boardId , authentication)")
+    @PreAuthorize("hasRole('ADMIN') or @boardSecurity.isUserAdminBoard(#boardId , authentication)")
     public ResponseEntity<Object> deleteBoardMember(
             @PathVariable("boardId")Integer boardId,
             @PathVariable("userId") Integer userId,

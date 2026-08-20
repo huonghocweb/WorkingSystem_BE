@@ -1,12 +1,12 @@
 package com.huong.workingsystem.aspect;
 
 import com.huong.workingsystem.annotation.TrackActivity;
+import com.huong.workingsystem.context.ActivityContextHolder;
+import com.huong.workingsystem.event.ActivityLog.ActivityLogEvent;
 import com.huong.workingsystem.model.dto.UserDetailCustom;
 import com.huong.workingsystem.model.enums.ActionType;
 import com.huong.workingsystem.model.enums.ContextType;
 import com.huong.workingsystem.model.enums.EntityType;
-import com.huong.workingsystem.repo.ActivityLogRepo;
-import com.huong.workingsystem.repo.CardRepo;
 import com.huong.workingsystem.service.ActivityLogService;
 import com.huong.workingsystem.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -14,16 +14,14 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
-import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.time.LocalDateTime;
 
 //Đánh dấu class là nơi chứa logic bổ trợ kh phải business logic
 // Để 1 aspect hoạt động cần 3 yếu tố
@@ -36,6 +34,7 @@ import java.util.Arrays;
 public class ActivityLogAspect {
     private final SecurityUtils securityUtils;
     private final ActivityLogService activityLogService;
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final SpelExpressionParser parser = new SpelExpressionParser();
     private final ParameterNameDiscoverer nameDiscoverer = new DefaultParameterNameDiscoverer();
 
@@ -43,68 +42,60 @@ public class ActivityLogAspect {
     //@annotation:lấy những method gắn @TrackActivity,
     @AfterReturning(pointcut = "@annotation(trackActivity)", returning = "result")
     public void logActivity(JoinPoint joinPoint, TrackActivity trackActivity, Object result) {
-        System.out.println("Start create activityLog: ");
-        Object[] args = joinPoint.getArgs();
-        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
-        Method method = methodSignature.getMethod();
-        String[] paramNames  = nameDiscoverer.getParameterNames(method);
-
-        ActionType actionType = trackActivity.actionType();
-        EntityType entityType = trackActivity.entityType();
-        ContextType contextType = trackActivity.contextType();
-        Integer  contextId = this.extractByParam(args, paramNames  ,"cardId");
-
-        EvaluationContext context = new StandardEvaluationContext();
-            if(paramNames != null)  {
-                for(int i = 0  ; i <  paramNames.length ; i ++ ) {
-                    context.setVariable(paramNames[i] , args[i]);
-                }
+        try{
+            System.out.println("Start create activityLog: ");
+            Object[] args = joinPoint.getArgs();
+            MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+            Method method = methodSignature.getMethod();
+            String[] paramNames  = nameDiscoverer.getParameterNames(method);
+            ActionType actionType = trackActivity.actionType();
+            EntityType entityType = trackActivity.entityType();
+            ContextType contextType = trackActivity.contextType();
+            Integer  contextId;
+            if(trackActivity.contextType().equals(ContextType.CARD  )) {
+                contextId = this.extractByParam(args, paramNames  ,"cardId");
+            }else {
+                contextId = Integer.valueOf(ActivityContextHolder.get("contextId"));
             }
-        Object actualResult = result;
-        if (result instanceof ResponseEntity<?> responseEntity) {
-            actualResult = responseEntity.getBody();
-        }
-        context.setVariable("result", actualResult);
-//        // Sau khi bạn đã chạy vòng lặp setVariable và set "result"
-//// Hãy dùng đoạn code này để debug:
-//
-//        System.out.println("======= DEBUG SPEL CONTEXT =======");
-//
-//// 1. Lấy danh sách các biến từ Context (Cần ép kiểu về StandardEvaluationContext)
-//        if (context instanceof StandardEvaluationContext stdContext) {
-//            // SpEL lưu biến trong một Map, nhưng nó không public trực tiếp.
-//            // Cách nhanh nhất để xem là in trực tiếp giá trị bạn nghi ngờ:
-//
-//            System.out.println("ParamNames list: " + Arrays.toString(paramNames));
-//            System.out.println("Result object: " + context.lookupVariable("result"));
-//
-//            // In ra giá trị cụ thể của từng tham số đã map
-//            if (paramNames != null) {
-//                for (String name : paramNames) {
-//                    System.out.println("Variable [#" + name + "]: " + context.lookupVariable(name));
-//                }
-//            }
-//        }
-//        System.out.println("==================================");
-        Integer entityId = 0;
-        if(!trackActivity.entityIdParam().isBlank()) {
-            System.out.println("Co entityId  Param");
-            entityId = this.extractByParam(args, paramNames, trackActivity.entityIdParam());
-        }else {
-            System.out.println("Khong co entityId  Param");
-
-            try{
-                String idExpression = trackActivity.entityId();
-                System.out.println("IDName: " + idExpression  );
-                entityId = parser.parseExpression(idExpression).getValue(context, Integer.class);
-                System.out.println("entityId: " + entityId);
-            } catch (Exception e) {
-                System.out.println(("SpEL Error: Không tìm thấy ID qua biểu thức {}" + trackActivity.entityId()));
-            }
-        }
-        UserDetailCustom user = securityUtils.getCurrentUser();
-        if(user != null) {
-            activityLogService.createActivityLogAndProcess(actionType, entityType, contextType, user, contextId,entityId);
+            String oldValue = ActivityContextHolder.get("oldValue");
+            String newValue = ActivityContextHolder.get("newValue");
+            String entityName = ActivityContextHolder.get("entityName");
+            String entityId = ActivityContextHolder.get("entityId");
+            String contextName = ActivityContextHolder.get("contextName");
+            UserDetailCustom user = securityUtils.getCurrentUser();
+            String content =
+                    String.format("%s has %s %s: %s%s",
+                            user.getUsername(),
+                            actionType.name().toLowerCase(),
+                            entityType.name().toLowerCase()
+                            ,entityName ,
+                            (entityType == EntityType.CARD ? "" :
+                                    String.format(" on %s %s",contextType.name().toLowerCase(),contextName )),
+                            ("From %s to %s "));
+            System.out.println("content: " + content);
+            ActivityLogEvent event = ActivityLogEvent.builder()
+                    .userId(user.getUserId())
+                    .userName(user.getUsername())
+                    .actionType(actionType.name())
+                    .createAt(LocalDateTime.now())
+                    .contextId(contextId)
+                    .contextName(contextName)
+                    .contextType(contextType.name())
+                    .entityId(Integer.valueOf(entityId))
+                    .entityType(entityType.name())
+                    .entityName(entityName)
+                    .oldValue(oldValue)
+                    .newValue(newValue)
+                    .content(content)
+                    .build();
+            System.out.println("event:  " + event);
+            System.out.println(">>>MAIN THREAD Started: " + Thread.currentThread().getName());
+            // 2. Bắn Event
+            applicationEventPublisher.publishEvent(event);
+            // 3. Kết thúc Main Thread
+            System.out.println(">>> MAIN THREAD Finished request: " + Thread.currentThread().getName());
+        }finally {
+            ActivityContextHolder.clear();
         }
         System.out.println("Create activityLog end! ");
     }

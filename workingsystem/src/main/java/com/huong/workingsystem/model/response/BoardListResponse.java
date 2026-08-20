@@ -14,8 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 public class BoardListResponse {
     private Integer boardListId;
-    private  String boardListTitle;
+    private String boardListTitle;
     private  Integer position;
     private List<CardSummaryResponse> cards;
-
+    private BoardListTypeResponse boardListType;
 }
